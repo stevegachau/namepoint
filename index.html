@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta
+			name="description"
+			content="Point an ENS name at a URL. One transaction writes the contenthash and url records on your own resolver. No custody, no approvals, no fee."
+		>
+		<meta name="theme-color" content="#f5f8fb">
+		<link
+			rel="preload"
+			href="/fonts/space-grotesk-latin.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		>
+		<link
+			rel="preload"
+			href="/fonts/inter-latin.woff2"
+			as="font"
+			type="font/woff2"
+			crossorigin
+		>
+		<!--
+			Real files rather than an inline data URI: the WalletConnect session
+			proposal needs a fetchable icon URL (see wallet.ts), so the mark has to
+			exist on disk anyway. Both are same-origin, so the "nothing loads from a
+			CDN" property still holds.
+		-->
+		<link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48">
+		<link rel="apple-touch-icon" href="/icon.png">
+		<title>namepoint — point an ENS name at a URL</title>
+		<script>
+		// Apply the saved theme before first paint to avoid a flash. Light is the
+		// default; only an explicit choice switches to dark.
+		(() => {
+			try {
+				if (localStorage.getItem("namepoint-theme") === "dark") {
+					document.documentElement.classList.add("dark");
+				}
+			} catch (_e) {
+				/* storage unavailable: fall through to light */
+			}
+		})();
+		</script>
+	</head>
+	<body>
+		<div id="root"></div>
+		<script type="module" src="/src/main.tsx"></script>
+	</body>
+</html>

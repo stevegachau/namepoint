@@ -1,0 +1,284 @@
+@import "./styles/fonts.css";
+
+@property --beam-angle {
+	syntax: "<angle>";
+	initial-value: 0deg;
+	inherits: false;
+}
+
+@keyframes beam-sweep {
+	to {
+		--beam-angle: 360deg;
+	}
+}
+
+@keyframes beam-travel {
+	from {
+		transform: translateX(-110%);
+	}
+	to {
+		transform: translateX(320%);
+	}
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Token system inherited from the uploaded template's shadcn structure, with
+ * the accent moved off the template's trade-desk cyan onto ENS blue — this
+ * product lives in the ENS ecosystem, and its audience recognises that blue.
+ * The ink canvas, the HSL-channel token shape and the light/dark split are
+ * the template's, kept verbatim in structure so every shadcn class still works.
+ *
+ * Extra tokens beyond the template: --ok and --warn. The redirect flow reports
+ * three outcome states (confirmed / pending / failed), so it needs a success
+ * and a caution colour, not just --destructive.
+ */
+@layer base {
+	:root {
+		--background: 210 40% 98%;
+		--foreground: 214 45% 10%;
+
+		--card: 0 0% 100%;
+		--card-foreground: 214 45% 10%;
+
+		--popover: 0 0% 100%;
+		--popover-foreground: 214 45% 10%;
+
+		/* Deep ENS blue, so the solid CTA reads branded and confident. */
+		--primary: 214 84% 36%;
+		--primary-foreground: 0 0% 100%;
+
+		--secondary: 212 32% 92%;
+		--secondary-foreground: 214 50% 18%;
+
+		--muted: 212 28% 94%;
+		--muted-foreground: 212 14% 40%;
+
+		--accent: 212 90% 94%;
+		--accent-foreground: 214 60% 24%;
+
+		--destructive: 358 68% 46%;
+		--destructive-foreground: 0 0% 100%;
+
+		--ok: 152 55% 30%;
+		--warn: 32 78% 34%;
+
+		--border: 212 22% 88%;
+		--input: 212 22% 84%;
+		--ring: 214 84% 46%;
+
+		/* Headline accent — the quieter half of the rotating hero line. */
+		--brand: 214 52% 26%;
+
+		--radius: 0.65rem;
+	}
+
+	.dark {
+		--background: 214 58% 4%;
+		--foreground: 210 28% 94%;
+
+		--card: 214 44% 7%;
+		--card-foreground: 210 28% 94%;
+
+		--popover: 214 46% 6%;
+		--popover-foreground: 210 28% 94%;
+
+		/* In dark the solid CTA flips to bright ENS blue — the loud moment. */
+		--primary: 214 94% 62%;
+		--primary-foreground: 214 80% 6%;
+
+		--secondary: 214 34% 13%;
+		--secondary-foreground: 212 46% 90%;
+
+		--muted: 214 30% 12%;
+		--muted-foreground: 212 16% 63%;
+
+		--accent: 213 74% 16%;
+		--accent-foreground: 214 90% 80%;
+
+		--destructive: 358 62% 52%;
+		--destructive-foreground: 0 0% 100%;
+
+		--ok: 152 58% 55%;
+		--warn: 36 84% 62%;
+
+		--border: 213 28% 15%;
+		--input: 213 28% 19%;
+		--ring: 214 94% 62%;
+
+		--brand: 214 94% 72%;
+	}
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		@apply bg-background text-foreground font-sans antialiased;
+		font-feature-settings: "cv11", "ss01";
+		text-rendering: optimizeLegibility;
+	}
+
+	h1,
+	h2,
+	h3 {
+		@apply font-display;
+	}
+
+	.font-display {
+		font-family: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+	}
+
+	::selection {
+		background: hsl(var(--ring) / 0.28);
+		color: hsl(var(--foreground));
+	}
+}
+
+@layer components {
+	/* Faint engineered dot-grid — the "record" substrate behind the hero. */
+	.bg-dotgrid {
+		background-image: radial-gradient(
+			hsl(var(--foreground) / 0.05) 1px,
+			transparent 1px
+		);
+		background-size: 26px 26px;
+		background-position: -13px -13px;
+	}
+
+	/* Slow-drifting blue light blooms that give the ink canvas depth. */
+	.aurora {
+		position: absolute;
+		border-radius: 9999px;
+		filter: blur(90px);
+		opacity: 0.5;
+		will-change: transform;
+	}
+
+	/* Edge fade so the spec tape dissolves at both ends of the bar. */
+	.tape-mask {
+		-webkit-mask-image: linear-gradient(
+			to right,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+		mask-image: linear-gradient(
+			to right,
+			transparent,
+			#000 6%,
+			#000 94%,
+			transparent
+		);
+	}
+
+	/*
+	 * Layered shadows rather than one blur. A single large shadow reads as a drop
+	 * shadow; stacking a tight contact shadow under a wide ambient one is what
+	 * makes a surface look lifted off the page rather than pasted onto it. Tinted
+	 * with --foreground so both themes stay coherent.
+	 */
+	.shadow-soft {
+		box-shadow:
+			0 1px 2px hsl(var(--foreground) / 0.05),
+			0 8px 24px -8px hsl(var(--foreground) / 0.1),
+			0 20px 48px -20px hsl(var(--foreground) / 0.14);
+	}
+
+	.shadow-float {
+		box-shadow:
+			0 2px 4px hsl(var(--foreground) / 0.06),
+			0 16px 40px -12px hsl(var(--foreground) / 0.14),
+			0 44px 96px -32px hsl(var(--foreground) / 0.22);
+	}
+
+	/* Frosted bar used by the floating nav pill. */
+	.glass {
+		@apply border border-border/60 bg-background/70 backdrop-blur-xl;
+	}
+
+	/*
+	 * A light travelling the border of a card. The gradient is painted into the
+	 * padding box and the content box is masked out, which leaves exactly the
+	 * 1px frame lit. Registering --angle as a real angle property is what makes
+	 * it animatable at all; a plain custom property would jump, not sweep.
+	 */
+	.border-beam {
+		position: relative;
+	}
+
+	.border-beam::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+		padding: 1px;
+		background: conic-gradient(
+			from var(--beam-angle),
+			transparent 0%,
+			hsl(var(--primary) / 0.9) 8%,
+			transparent 18%
+		);
+		-webkit-mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		-webkit-mask-composite: xor;
+		mask:
+			linear-gradient(#000 0 0) content-box,
+			linear-gradient(#000 0 0);
+		mask-composite: exclude;
+		animation: beam-sweep 7s linear infinite;
+		pointer-events: none;
+	}
+
+	/* A pulse travelling a connector, for the resolution path. */
+	.beam-track {
+		position: relative;
+		overflow: hidden;
+	}
+
+	.beam-track::after {
+		content: "";
+		position: absolute;
+		inset-block: 0;
+		width: 45%;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			hsl(var(--primary) / 0.85),
+			transparent
+		);
+		animation: beam-travel 2.6s linear infinite;
+	}
+
+	.eyebrow {
+		@apply font-mono text-[0.7rem] uppercase tracking-[0.32em] text-muted-foreground;
+	}
+
+	/* Mono key/value rows used wherever a real onchain record is shown. */
+	.record-row {
+		@apply flex items-baseline justify-between gap-4 font-mono text-xs;
+	}
+}
+
+/* Respect users who prefer less motion: freeze ambient + rotation animations. */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+		scroll-behavior: auto !important;
+	}
+}

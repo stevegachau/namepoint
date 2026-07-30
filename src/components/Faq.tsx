@@ -1,0 +1,86 @@
+import { Plus } from "lucide-react";
+import { Reveal } from "@/components/Reveal";
+
+/**
+ * Native <details> so the accordion works without JavaScript, keyboard support
+ * comes free and there is no extra dependency. Every answer here is checkable
+ * against the app's own behaviour rather than written to sound reassuring.
+ */
+const QA: { q: string; a: string }[] = [
+	{
+		q: "Where does the name forward to?",
+		a: "The url text record on the name. The redirect page resolves that record at request time, so the record is the destination.",
+	},
+	{
+		q: "Can the destination change later?",
+		a: "Yes. Edit the destination here, which is one transaction touching only the url record, or edit the record in any ENS manager. The redirect follows it on the next request.",
+	},
+	{
+		q: "What if the url record is not set?",
+		a: "Enter a destination when you activate and it is written with the contenthash in the same transaction. Activating without one leaves the name resolving to a blank page until the record is set.",
+	},
+	{
+		q: "Something else is already published on the name.",
+		a: "The app reports the existing contenthash before you sign. Activating replaces it, and whatever it pointed to stops resolving. No other record is touched.",
+	},
+	{
+		q: "How is it switched off?",
+		a: "One transaction clearing the contenthash. The url record is left in place, so switching back on later needs no setup. This also works from any ENS manager.",
+	},
+	{
+		q: "Why does the wallet ask to switch network?",
+		a: "Records for .eth names are on Ethereum mainnet, so the write has to happen there. The app requests the switch before preparing the transaction.",
+	},
+	{
+		q: "Does the link work in an ordinary browser?",
+		a: "Through the eth.limo gateway, yes: yourname.eth.limo resolves anywhere. Browsers and extensions with native .eth resolution handle yourname.eth directly.",
+	},
+	{
+		q: "A name is missing from the list.",
+		a: "The list comes from a public ENS index, which can lag a recent registration or transfer. Reverse records and names whose label the index cannot resolve are filtered out. Authorisation is checked onchain when a name is selected, not from the index.",
+	},
+	{
+		q: "What does it cost?",
+		a: "Gas for your own transaction. namepoint charges nothing.",
+	},
+];
+
+export function Faq() {
+	return (
+		<section id="faq" className="w-full scroll-mt-24 border-t border-border/60">
+			<div className="container mx-auto py-20 md:py-28">
+				<div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
+					<Reveal className="lg:sticky lg:top-28 lg:self-start">
+						<p className="eyebrow">Questions</p>
+						<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
+							Before you sign
+						</h2>
+						<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
+							These describe what the app actually does. Where an answer and the
+							source disagree, the source is correct.
+						</p>
+					</Reveal>
+
+					<Reveal className="border-t border-border">
+						{QA.map(({ q, a }) => (
+							<details key={q} className="group border-b border-border/60">
+								<summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-left transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+									<span className="text-base tracking-tight sm:text-lg">
+										{q}
+									</span>
+									<Plus
+										aria-hidden="true"
+										className="mt-1 h-4 w-4 flex-none text-muted-foreground transition-transform duration-300 group-open:rotate-45"
+									/>
+								</summary>
+								<p className="max-w-2xl pb-6 pr-10 text-sm leading-relaxed text-muted-foreground">
+									{a}
+								</p>
+							</details>
+						))}
+					</Reveal>
+				</div>
+			</div>
+		</section>
+	);
+}
