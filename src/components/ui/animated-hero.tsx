@@ -47,7 +47,7 @@ function Hero({ onChooseName }: Props) {
 							href="#scope"
 							// Sized down on the narrowest screens: at 320px this wrapped to two
 							// lines, and a clickable that wraps is a broken tap target.
-							className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-2.5 pr-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-2.5 sm:pl-3 sm:pr-4 sm:text-sm"
+							className="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-border bg-secondary/50 py-1.5 pl-2.5 pr-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-2.5 sm:pl-3 sm:pr-4 sm:text-sm"
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
 							No approvals, no custody, no fee
@@ -94,7 +94,7 @@ function Hero({ onChooseName }: Props) {
 							<Button
 								size="lg"
 								onClick={onChooseName}
-								className="group gap-2.5 rounded-full px-7"
+								className="group gap-2.5 rounded-md px-6"
 							>
 								<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
 								Choose a name
@@ -102,7 +102,7 @@ function Hero({ onChooseName }: Props) {
 							<Button
 								size="lg"
 								variant="outline"
-								className="group gap-2.5 rounded-full px-7"
+								className="group gap-2.5 rounded-md px-6"
 								asChild
 							>
 								<a href="#how">

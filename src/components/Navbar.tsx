@@ -78,7 +78,7 @@ export function Navbar({
 							)}
 							<a
 								href={href}
-								className="group/link flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+								className="group/link flex items-center gap-2 rounded-[5px] px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 							>
 								<Icon className="h-3.5 w-3.5 flex-none text-muted-foreground/70 transition-colors group-hover/link:text-primary" />
 								{label}
@@ -94,7 +94,7 @@ export function Navbar({
 						size="sm"
 						onClick={onWalletClick}
 						title={connected ? "Wallet" : "Connect a wallet"}
-						className="max-w-[38vw] gap-2 rounded-full text-muted-foreground hover:text-foreground sm:max-w-[16rem]"
+						className="max-w-[38vw] gap-2 rounded-md text-muted-foreground hover:text-foreground sm:max-w-[16rem]"
 					>
 						{walletAvatar ? (
 							<img
@@ -111,7 +111,7 @@ export function Navbar({
 					<Button
 						size="sm"
 						onClick={onChooseName}
-						className="group hidden gap-2 rounded-full pl-4 pr-4 sm:inline-flex"
+						className="group hidden gap-2 rounded-md pl-4 pr-4 sm:inline-flex"
 					>
 						<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
 						{connected ? "Choose a name" : "Get started"}

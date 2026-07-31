@@ -185,11 +185,11 @@ export function HowItWorks() {
 				<div>
 					{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: pausing on hover is a convenience, every tab stays operable */}
 					<div
-						className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16"
+						className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
 						onMouseEnter={() => setPaused(true)}
 						onMouseLeave={() => setPaused(false)}
 					>
-						<div>
+						<div className="lg:order-2">
 							<div
 								role="tablist"
 								aria-label="How it works"
@@ -265,8 +265,8 @@ export function HowItWorks() {
 							</div>
 						</div>
 
-						<div className="lg:pt-1">
-							<div className="shadow-soft overflow-hidden rounded-xl border border-border/70 bg-card">
+						<div className="lg:order-1">
+							<div className="shadow-soft overflow-hidden rounded-md border border-border bg-card">
 								<div className="flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-5 py-3">
 									<span className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
 										{STEPS[active].title}
