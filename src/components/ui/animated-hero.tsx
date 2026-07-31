@@ -77,8 +77,8 @@ function Hero({ onChooseName }: Props) {
 						</h1>
 
 						<p className="max-w-xl text-center text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
-							Your name forwards to its url record. Change the record to change
-							the destination, with no further transaction.
+							Your name forwards to any URL you choose. Point it somewhere else
+							later without setting the redirect up again.
 						</p>
 					</div>
 

@@ -20,7 +20,7 @@ const STEPS = [
 	{
 		icon: Link2,
 		title: "Set the destination",
-		body: "Enter the URL the name should forward to. It is written to the url record, which the redirect resolves on every request, so changing it later needs no transaction here.",
+		body: "Enter the URL the name should forward to. It is saved to the url record, which the redirect reads on every request, so you can point the name elsewhere later without touching the redirect itself.",
 	},
 	{
 		icon: Wallet,

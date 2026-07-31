@@ -13,7 +13,7 @@ const QA: { q: string; a: string }[] = [
 	},
 	{
 		q: "Can the destination change later?",
-		a: "Yes. Edit the destination here, which is one transaction touching only the url record, or edit the record in any ENS manager. The redirect follows it on the next request.",
+		a: "Yes. Change it here or in any ENS manager. It is one transaction that touches only the url record, and the redirect itself stays as it is, so there is nothing to set up again.",
 	},
 	{
 		q: "What if the url record is not set?",
@@ -56,8 +56,8 @@ export function Faq() {
 							Before you sign
 						</h2>
 						<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-							These describe what the app actually does. Where an answer and the
-							source disagree, the source is correct.
+							Everything below describes the app as it works today. The code is
+							public if you would rather read that.
 						</p>
 					</Reveal>
 
