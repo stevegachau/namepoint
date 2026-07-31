@@ -49,8 +49,20 @@ export function HeroArtifact() {
 	const [idx, setIdx] = useState(0);
 	const [phase, setPhase] = useState<Phase>("typing");
 	const [typed, setTyped] = useState("");
+	/**
+	 * The destination currently painted in the viewport. It lags `idx` until the
+	 * new one has resolved, because a browser keeps showing the page you are on
+	 * while the next address is being typed. Blanking instead left a very large
+	 * empty rectangle for a third of every cycle.
+	 */
+	const [shown, setShown] = useState(0);
 
 	const ex = EXAMPLES[idx];
+	const page = EXAMPLES[shown];
+
+	useEffect(() => {
+		if (phase === "landed") setShown(idx);
+	}, [phase, idx]);
 
 	/**
 	 * The whole sequence is scheduled once, from one effect, against a single
@@ -89,7 +101,7 @@ export function HeroArtifact() {
 	}, [idx, still]);
 
 	return (
-		<div className="relative w-full max-w-5xl">
+		<div className="relative w-full">
 			<div className="border-beam shadow-float relative overflow-hidden rounded-xl border border-border/70 bg-card">
 				{/* chrome */}
 				<div className="flex items-center gap-3 border-b border-border/70 bg-secondary/40 px-4 py-3">
@@ -174,11 +186,20 @@ export function HeroArtifact() {
 				</div>
 
 				{/* viewport */}
-				<div className="relative h-[17rem] bg-background sm:h-[20rem]">
-					<AnimatePresence mode="wait">
-						{phase === "landed" ? (
+				{/*
+				  Proportional, not a fixed height. Pinned to a pixel height the window
+				  turned into a 3.3:1 letterbox once it ran the full column. The ratio
+				  widens with the breakpoint the way a real window does.
+				*/}
+				<div className="relative aspect-[4/3] bg-background sm:aspect-[16/9] lg:aspect-[5/2]">
+					<div
+						className={`absolute inset-0 transition-opacity duration-300 ${
+							phase === "landed" ? "opacity-100" : "opacity-40"
+						}`}
+					>
+						<AnimatePresence mode="wait">
 							<motion.div
-								key={`page-${idx}`}
+								key={`page-${shown}`}
 								initial={still ? false : { opacity: 0, y: 10 }}
 								animate={{ opacity: 1, y: 0 }}
 								exit={still ? undefined : { opacity: 0 }}
@@ -189,10 +210,10 @@ export function HeroArtifact() {
 								<div className="flex flex-none items-center justify-between gap-4 border-b border-border/60 px-5 py-3">
 									<span className="flex min-w-0 items-center gap-2">
 										<span
-											className={`h-2 w-2 flex-none rounded-full ${ex.chip}`}
+											className={`h-2 w-2 flex-none rounded-full ${page.chip}`}
 										/>
 										<span className="truncate font-display text-[0.8rem] font-semibold tracking-tight">
-											{ex.dest}
+											{page.dest}
 										</span>
 									</span>
 									<span
@@ -209,15 +230,15 @@ export function HeroArtifact() {
 									</span>
 								</div>
 
-								<div className="relative flex-1 overflow-hidden p-5 sm:p-6">
+								<div className="relative flex flex-1 flex-col gap-5 overflow-hidden p-5 sm:p-6">
 									<div
-										className={`h-24 w-full rounded-lg bg-gradient-to-br sm:h-28 ${ex.band}`}
+										className={`min-h-[3.5rem] w-full flex-1 rounded-lg bg-gradient-to-br ${page.band}`}
 									/>
-									<div className="mt-5 space-y-2.5">
+									<div className="flex-none space-y-2.5">
 										<div className="h-3 w-1/2 rounded-full bg-foreground/[0.12]" />
 										<div className="h-3 w-1/3 rounded-full bg-foreground/[0.07]" />
 									</div>
-									<div className="mt-5 grid grid-cols-3 gap-3">
+									<div className="grid flex-none grid-cols-3 gap-3">
 										{[0, 1, 2].map((n) => (
 											<div
 												key={n}
@@ -227,17 +248,8 @@ export function HeroArtifact() {
 									</div>
 								</div>
 							</motion.div>
-						) : (
-							<motion.div
-								key="blank"
-								initial={still ? false : { opacity: 0 }}
-								animate={{ opacity: 1 }}
-								exit={still ? undefined : { opacity: 0 }}
-								transition={{ duration: 0.2 }}
-								className="absolute inset-0"
-							/>
-						)}
-					</AnimatePresence>
+						</AnimatePresence>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -55,8 +55,8 @@ function Hero({ onChooseName }: Props) {
 						</a>
 					</div>
 
-					<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-end lg:gap-16">
-						<h1 className="max-w-3xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-6xl md:text-7xl">
+					<div className="flex flex-col gap-6">
+						<h1 className="max-w-5xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-6xl md:text-7xl xl:text-8xl">
 							<span className="block text-brand">Point your .eth at</span>
 							<span className="relative block h-[1.12em] overflow-hidden">
 								{titles.map((title, index) => (
@@ -83,37 +83,39 @@ function Hero({ onChooseName }: Props) {
 							</span>
 						</h1>
 
-						<p className="text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg lg:pb-3">
+						<p className="max-w-xl text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
 							Your name forwards to any URL you choose. Point it somewhere else
 							later without setting the redirect up again.
 						</p>
 					</div>
 
-					<div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-						<Button
-							size="lg"
-							onClick={onChooseName}
-							className="group gap-2.5 rounded-full px-7"
-						>
-							<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
-							Choose a name
-						</Button>
-						<Button
-							size="lg"
-							variant="outline"
-							className="group gap-2.5 rounded-full px-7"
-							asChild
-						>
-							<a href="#how">
-								How it works
-								<ChevronsDown className="h-4 w-4 flex-none transition-transform duration-500 group-hover:translate-y-0.5" />
-							</a>
-						</Button>
-					</div>
+					<div className="flex w-full flex-col gap-x-6 gap-y-4 sm:flex-row sm:items-center sm:justify-between">
+						<div className="flex flex-col gap-3 sm:flex-row">
+							<Button
+								size="lg"
+								onClick={onChooseName}
+								className="group gap-2.5 rounded-full px-7"
+							>
+								<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
+								Choose a name
+							</Button>
+							<Button
+								size="lg"
+								variant="outline"
+								className="group gap-2.5 rounded-full px-7"
+								asChild
+							>
+								<a href="#how">
+									How it works
+									<ChevronsDown className="h-4 w-4 flex-none transition-transform duration-500 group-hover:translate-y-0.5" />
+								</a>
+							</Button>
+						</div>
 
-					<p className="font-mono text-xs tracking-wide text-muted-foreground">
-						One transaction to switch on. One to switch off.
-					</p>
+						<p className="font-mono text-xs tracking-wide text-muted-foreground">
+							One transaction to switch on. One to switch off.
+						</p>
+					</div>
 
 					{/* The product itself, directly under the claim it supports. */}
 					<div className="mt-4 flex w-full lg:mt-8">
