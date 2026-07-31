@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
+import { REPO_URL } from "@/site";
 
 /**
  * Native <details> so the accordion works without JavaScript, keyboard support
@@ -56,8 +57,17 @@ export function Faq() {
 							Before you sign
 						</h2>
 						<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-							Everything below describes the app as it works today. The code is
-							public if you would rather read that.
+							Everything below describes the app as it works today. If you would
+							rather read the code,{" "}
+							<a
+								href={REPO_URL}
+								target="_blank"
+								rel="noreferrer"
+								className="text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+							>
+								it is on GitHub
+							</a>
+							.
 						</p>
 					</Reveal>
 

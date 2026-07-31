@@ -38,11 +38,11 @@ function Hero({ onChooseName }: Props) {
 				<div className="flex flex-col items-center justify-center gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
 					<div>
 						<a
-							href="#custody"
+							href="#scope"
 							className="inline-flex items-center gap-2.5 rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-3 pr-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
-							One call to your own resolver
+							No approvals, no custody, no fee
 							<MoveRight className="h-3.5 w-3.5 flex-none text-muted-foreground" />
 						</a>
 					</div>
