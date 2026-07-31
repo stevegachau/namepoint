@@ -30,8 +30,6 @@ src/
   components/
     Navbar SpecTape AmbientBackground Wordmark ThemeToggle
     HeroArtifact         browser window resolving a name, on a loop
-    Stakes               the pasted URL vs the name you own
-    Directory            examples as a resolver readout
     HowItWorks           three steps as self-advancing tabs
     Scope                what changes / is untouched / was never in reach
     Faq FinalCta Footer
@@ -39,8 +37,9 @@ src/
     ui/animated-hero.tsx  ui/button.tsx
 ```
 
-`HeroArtifact` carries the hero. Abstract blocks stand in for the destination
-page; a specific screenshot would be a mock-up of a real site. `HeroArtifact`,
+`HeroArtifact` carries the hero and the examples; they are not repeated in a
+section below it. Abstract blocks stand in for the destination page, because a
+specific screenshot would be a mock-up of a real site. `HeroArtifact`,
 `HowItWorks` and `Reveal` all check `useReducedMotion`.
 
 `Scope` merges what were two sections, "What it writes" and "What it cannot do".
@@ -91,15 +90,17 @@ providers frequently stop polling once the wallet UI closes, which can hang
 
 ## Name list
 
-Two categories are filtered out of the indexer response:
+Only `.eth` names on Ethereum mainnet are offered. Filtered out:
 
-- `*.addr.reverse`, which are reverse-resolution records rather than names
-  anyone visits.
-- `[<labelhash>].eth`, where the index cannot resolve the label. `namehash`
-  rejects these, so nothing can be done with them. Supporting them would mean
-  deriving the node from the labelhash directly, which this does not do.
-
-On one address this reduced 516 entries to 506.
+- **Anything not ending in `.eth`** — DNS names imported into the registry,
+  which resolve through their own gateway rather than eth.limo. This also covers
+  the `*.addr.reverse` reverse record every address with a primary name owns.
+- **`*.base.eth`** — Basenames subnames are registered on Base, so their records
+  are not on the mainnet registry this app writes to. The 2LD `base.eth` itself
+  is a normal mainnet name and is kept.
+- **`[<labelhash>].eth`** — the index cannot resolve the label, and `namehash`
+  rejects these. Supporting them would mean deriving the node from the labelhash
+  directly, which this does not do.
 
 ## Notes
 

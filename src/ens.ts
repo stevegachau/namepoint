@@ -137,16 +137,22 @@ async function gql(query: string, address: string, after: string | null) {
 }
 
 /**
- * Names the indexer returns that cannot be redirected, and so are noise in a
- * picker:
+ * Names the indexer returns that this app cannot redirect, and so are noise in
+ * the picker:
  *
- *  - `*.addr.reverse` are reverse-resolution records, not names anyone visits.
- *    Every address that has ever set a primary name owns one.
- *  - `[<labelhash>].eth` is the indexer saying it does not know the label behind
- *    a hash. `namehash` rejects those, so nothing can be done with them here.
+ *  - Anything not ending in `.eth`. That is DNS names imported into the
+ *    registry, which resolve through their own gateway rather than eth.limo, and
+ *    it also covers the `*.addr.reverse` reverse records every address owning a
+ *    primary name has.
+ *  - `*.base.eth`. Basenames subnames are registered on Base, so their records
+ *    do not live on the mainnet registry this app writes to. The exact name
+ *    `base.eth` is a normal mainnet 2LD and is left in.
+ *  - `[<labelhash>].eth`, the indexer saying it does not know the label behind a
+ *    hash. `namehash` rejects those, so nothing can be done with them here.
  */
 function usable(name: string): boolean {
-	if (name === "addr.reverse" || name.endsWith(".addr.reverse")) return false;
+	if (!name.endsWith(".eth")) return false;
+	if (name.endsWith(".base.eth")) return false;
 	if (name.includes("[") && name.includes("]")) return false;
 	return true;
 }

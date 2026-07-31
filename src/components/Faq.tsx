@@ -37,7 +37,7 @@ const QA: { q: string; a: string }[] = [
 	},
 	{
 		q: "A name is missing from the list.",
-		a: "The list comes from a public ENS index, which can lag a recent registration or transfer. Reverse records and names whose label the index cannot resolve are filtered out. Authorisation is checked onchain when a name is selected, not from the index.",
+		a: "The list only shows .eth names on Ethereum mainnet. Imported DNS names and Basenames subnames (.base.eth) are left out, because their records do not live on the registry this app writes to. Reverse records and names whose label the index cannot resolve are filtered out too. The index can also lag a recent registration or transfer; authorisation itself is checked onchain when you select a name.",
 	},
 	{
 		q: "What does it cost?",
