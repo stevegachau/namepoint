@@ -12,6 +12,18 @@
 	}
 }
 
+@keyframes ray-drift {
+	0%,
+	100% {
+		opacity: calc(var(--ray-max) * 0.35);
+		transform: translateX(-50%) rotate(var(--ray-rot)) scaleY(0.9);
+	}
+	50% {
+		opacity: var(--ray-max);
+		transform: translateX(-50%) rotate(calc(var(--ray-rot) + 4deg)) scaleY(1.08);
+	}
+}
+
 @keyframes beam-travel {
 	from {
 		transform: translateX(-110%);
@@ -266,6 +278,25 @@
 	.record-row {
 		@apply flex items-baseline justify-between gap-4 font-mono text-xs;
 	}
+}
+
+/*
+ * The theme swap is a View Transition. The default cross-fade is suppressed so
+ * the only thing animating is the clip-path wipe the toggle drives, and the new
+ * snapshot sits above the old one for the reveal to read against.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+	z-index: 1;
+}
+
+::view-transition-new(root) {
+	z-index: 2;
 }
 
 /* Respect users who prefer less motion: freeze ambient + rotation animations. */

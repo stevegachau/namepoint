@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowDown, MoveRight, ShieldCheck } from "lucide-react";
+import { ChevronsDown, ShieldCheck, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { HeroArtifact } from "@/components/HeroArtifact";
 import { Button } from "@/components/ui/button";
@@ -43,7 +43,7 @@ function Hero({ onChooseName }: Props) {
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
 							No approvals, no custody, no fee
-							<MoveRight className="h-3.5 w-3.5 flex-none text-muted-foreground" />
+							<ChevronsDown className="h-3.5 w-3.5 flex-none -rotate-90 text-muted-foreground" />
 						</a>
 					</div>
 
@@ -86,13 +86,20 @@ function Hero({ onChooseName }: Props) {
 						<Button
 							size="lg"
 							onClick={onChooseName}
-							className="gap-2 sm:gap-3"
+							className="group gap-2.5 rounded-full px-7"
 						>
-							Choose a name <MoveRight className="h-4 w-4" />
+							<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
+							Choose a name
 						</Button>
-						<Button size="lg" variant="outline" className="gap-2 sm:gap-3" asChild>
+						<Button
+							size="lg"
+							variant="outline"
+							className="group gap-2.5 rounded-full px-7"
+							asChild
+						>
 							<a href="#how">
-								How it works <ArrowDown className="h-4 w-4" />
+								How it works
+								<ChevronsDown className="h-4 w-4 flex-none transition-transform duration-500 group-hover:translate-y-0.5" />
 							</a>
 						</Button>
 					</div>

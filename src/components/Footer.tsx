@@ -50,7 +50,10 @@ export function Footer() {
 
 				<div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-border/70 pt-6">
 					{STACK.map((s) => (
-						<span key={s} className="font-mono text-xs text-muted-foreground/70">
+						<span
+							key={s}
+							className="font-mono text-xs text-muted-foreground/70"
+						>
 							{s}
 						</span>
 					))}

@@ -1,17 +1,23 @@
-import { LogIn, MoveRight } from "lucide-react";
+import {
+	MessagesSquare,
+	Route,
+	ShieldCheck,
+	Sparkles,
+	Wallet,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Wordmark } from "@/components/Wordmark";
 import { Button } from "@/components/ui/button";
 
 /**
- * Terse labels. Navigation is a set of destinations, not a summary of each one,
- * and "What it writes" was a sentence doing a signpost's job.
+ * Terse labels with an icon each. Navigation is a set of destinations, not a
+ * summary of them, and the icons give the row something to scan by.
  */
 const LINKS = [
-	{ label: "How", href: "#how" },
-	{ label: "Scope", href: "#scope" },
-	{ label: "FAQ", href: "#faq" },
+	{ label: "How", href: "#how", icon: Route },
+	{ label: "Scope", href: "#scope", icon: ShieldCheck },
+	{ label: "FAQ", href: "#faq", icon: MessagesSquare },
 ];
 
 type Props = {
@@ -24,10 +30,10 @@ type Props = {
 };
 
 /**
- * A floating pill rather than a full-width bar. The bar itself is transparent,
- * so the page scrolls past the nav instead of under a slab, and the pill is
- * absolutely centred on the viewport, which is the only way it stays centred
- * when the wordmark and the wallet controls are different widths.
+ * A floating glass pill rather than a full-width bar. The bar itself is
+ * transparent, so the page scrolls past the nav instead of under a slab, and the
+ * pill is absolutely centred on the viewport, which is the only way it stays
+ * centred when the wordmark and the wallet controls are different widths.
  */
 export function Navbar({
 	walletLabel,
@@ -36,7 +42,7 @@ export function Navbar({
 	onWalletClick,
 	onChooseName,
 }: Props) {
-	// Transparent over the hero, frosted once content starts passing underneath.
+	// Transparent over the hero, frosted once content passes underneath.
 	// Without this the headline scrolls straight through the wordmark.
 	const [scrolled, setScrolled] = useState(false);
 	useEffect(() => {
@@ -50,7 +56,7 @@ export function Navbar({
 		<header
 			className={`sticky top-0 z-40 w-full transition-colors duration-300 ${
 				scrolled
-					? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
+					? "border-b border-border/60 bg-background/70 backdrop-blur-xl"
 					: "border-b border-transparent"
 			}`}
 		>
@@ -59,15 +65,25 @@ export function Navbar({
 					<Wordmark />
 				</a>
 
-				<nav className="glass absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 rounded-full p-1.5 shadow-soft lg:flex">
-					{LINKS.map((link) => (
-						<a
-							key={link.label}
-							href={link.href}
-							className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-						>
-							{link.label}
-						</a>
+				<nav className="glass absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 rounded-full p-1.5 shadow-soft lg:flex">
+					{LINKS.map(({ label, href, icon: Icon }, i) => (
+						<span key={label} className="flex items-center">
+							{/* Hairline between items, so the pill reads as a set of
+							    destinations rather than three floating words. */}
+							{i > 0 && (
+								<span
+									aria-hidden="true"
+									className="mr-1 h-4 w-px flex-none bg-border/70"
+								/>
+							)}
+							<a
+								href={href}
+								className="group/link flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+							>
+								<Icon className="h-3.5 w-3.5 flex-none text-muted-foreground/70 transition-colors group-hover/link:text-primary" />
+								{label}
+							</a>
+						</span>
 					))}
 				</nav>
 
@@ -77,6 +93,7 @@ export function Navbar({
 						variant="ghost"
 						size="sm"
 						onClick={onWalletClick}
+						title={connected ? "Wallet" : "Connect a wallet"}
 						className="max-w-[38vw] gap-2 rounded-full text-muted-foreground hover:text-foreground sm:max-w-[16rem]"
 					>
 						{walletAvatar ? (
@@ -87,17 +104,17 @@ export function Navbar({
 								className="h-4 w-4 flex-none rounded-full object-cover"
 							/>
 						) : (
-							<LogIn className="h-4 w-4 flex-none" />
+							<Wallet className="h-4 w-4 flex-none" />
 						)}
 						<span className="truncate">{walletLabel}</span>
 					</Button>
 					<Button
 						size="sm"
 						onClick={onChooseName}
-						className="hidden gap-2 rounded-full pl-4 pr-3.5 sm:inline-flex"
+						className="group hidden gap-2 rounded-full pl-4 pr-4 sm:inline-flex"
 					>
+						<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
 						{connected ? "Choose a name" : "Get started"}
-						<MoveRight className="h-4 w-4" />
 					</Button>
 				</div>
 			</div>

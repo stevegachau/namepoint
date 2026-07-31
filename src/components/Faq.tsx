@@ -1,4 +1,5 @@
-import { Plus } from "lucide-react";
+import { MessagesSquare, Plus } from "lucide-react";
+import { Eyebrow } from "@/components/Eyebrow";
 import { Reveal } from "@/components/Reveal";
 import { REPO_URL } from "@/site";
 
@@ -52,7 +53,7 @@ export function Faq() {
 			<div className="container mx-auto py-20 md:py-28">
 				<div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
 					<Reveal className="lg:sticky lg:top-28 lg:self-start">
-						<p className="eyebrow">Questions</p>
+						<Eyebrow icon={MessagesSquare}>Questions</Eyebrow>
 						<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 							Before you sign
 						</h2>
