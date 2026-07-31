@@ -1,5 +1,3 @@
-import { Reveal } from "@/components/Reveal";
-
 /**
  * The reach of the single call the app makes, in three registers: what changes,
  * what is left alone, and what the transaction never touches.
@@ -42,18 +40,20 @@ const GROUPS: { label: string; note: string; rows: Row[] }[] = [
 
 export function Scope() {
 	return (
-		<section id="scope" className="w-full scroll-mt-24 border-t border-border/60">
+		<section
+			id="scope"
+			className="w-full scroll-mt-24 border-t border-border/60"
+		>
 			<div className="container mx-auto py-20 md:py-28">
 				<div className="grid gap-12 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:gap-20">
-					<Reveal>
+					<div>
 						<div className="lg:sticky lg:top-28">
-							<p className="eyebrow">Scope</p>
 							<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 								What one transaction touches.
 							</h2>
 							<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-								This is the whole transaction. If something is not in it, the app
-								has no way to do it.
+								This is the whole transaction. If something is not in it, the
+								app has no way to do it.
 							</p>
 
 							{/* The call itself, lit at the edge because it is the claim. */}
@@ -67,24 +67,28 @@ export function Scope() {
 										</span>
 										{`,
   `}
-										<span className="text-primary">setContenthash(node, …)</span>
+										<span className="text-primary">
+											setContenthash(node, …)
+										</span>
 										{`,
 ])`}
 									</code>
 								</pre>
 							</div>
 						</div>
-					</Reveal>
+					</div>
 
 					<div>
 						{GROUPS.map((g, gi) => (
-							<Reveal key={g.label} delay={gi * 0.07}>
+							<div>
 								<div className={gi > 0 ? "mt-12" : ""}>
 									<div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-border pb-3">
 										<h3 className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-foreground">
 											{g.label}
 										</h3>
-										<p className="text-[0.8rem] text-muted-foreground">{g.note}</p>
+										<p className="text-[0.8rem] text-muted-foreground">
+											{g.note}
+										</p>
 									</div>
 
 									<dl>
@@ -117,17 +121,17 @@ export function Scope() {
 										))}
 									</dl>
 								</div>
-							</Reveal>
+							</div>
 						))}
 
-						<Reveal delay={0.24}>
+						<div>
 							<p className="mt-10 max-w-xl text-sm leading-relaxed text-muted-foreground">
 								The destination lives in the url record, so pointing the name
-								somewhere else later is one transaction on that record alone, here
-								or in any ENS manager. The redirect stays as it is, and if this
-								site went offline your name would carry on working.
+								somewhere else later is one transaction on that record alone,
+								here or in any ENS manager. The redirect stays as it is, and if
+								this site went offline your name would carry on working.
 							</p>
-						</Reveal>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,5 +1,4 @@
 import { Plus } from "lucide-react";
-import { Reveal } from "@/components/Reveal";
 import { REPO_URL } from "@/site";
 
 /**
@@ -51,8 +50,7 @@ export function Faq() {
 		<section id="faq" className="w-full scroll-mt-24 border-t border-border/60">
 			<div className="container mx-auto py-20 md:py-28">
 				<div className="grid gap-10 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:gap-20">
-					<Reveal className="lg:sticky lg:top-28 lg:self-start">
-						<p className="eyebrow">Questions</p>
+					<div className="lg:sticky lg:top-28 lg:self-start">
 						<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 							Before you sign
 						</h2>
@@ -69,9 +67,9 @@ export function Faq() {
 							</a>
 							.
 						</p>
-					</Reveal>
+					</div>
 
-					<Reveal className="border-t border-border">
+					<div className="border-t border-border">
 						{QA.map(({ q, a }) => (
 							<details key={q} className="group border-b border-border/60">
 								<summary className="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-left transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
@@ -88,7 +86,7 @@ export function Faq() {
 								</p>
 							</details>
 						))}
-					</Reveal>
+					</div>
 				</div>
 			</div>
 		</section>

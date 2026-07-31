@@ -32,7 +32,9 @@ function TapeRow() {
 					</span>
 					<span
 						className={
-							s.good ? "font-medium text-primary" : "font-medium text-foreground"
+							s.good
+								? "font-medium text-primary"
+								: "font-medium text-foreground"
 						}
 					>
 						{s.value}

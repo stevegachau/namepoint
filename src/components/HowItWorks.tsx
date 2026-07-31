@@ -1,7 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, Link2, Search, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Reveal } from "@/components/Reveal";
 
 /**
  * Three steps as tabs that advance on a timer. Clicking a tab takes over from
@@ -54,7 +53,9 @@ function PanelSelect() {
 					>
 						<span
 							className={`font-mono text-[0.8rem] ${
-								i === 1 ? "font-medium text-foreground" : "text-muted-foreground"
+								i === 1
+									? "font-medium text-foreground"
+									: "text-muted-foreground"
 							}`}
 						>
 							{n}
@@ -126,7 +127,9 @@ function PanelSign() {
 				<span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">
 					one transaction
 				</span>
-				<p className="mt-2.5 font-mono text-[0.8rem] text-foreground">multicall</p>
+				<p className="mt-2.5 font-mono text-[0.8rem] text-foreground">
+					multicall
+				</p>
 				<div className="mt-3 space-y-1.5 border-l-2 border-primary pl-3">
 					<p className="font-mono text-[0.72rem] text-primary">
 						+ setText(node, "url", …)
@@ -169,18 +172,17 @@ export function HowItWorks() {
 	return (
 		<section id="how" className="w-full scroll-mt-24 border-t border-border/60">
 			<div className="container mx-auto py-20 md:py-28">
-				<Reveal>
+				<div>
 					<div className="flex flex-wrap items-end justify-between gap-6">
 						<div>
-							<p className="eyebrow">How it works</p>
 							<h2 className="mt-6 max-w-xl text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 								Three steps, one signature
 							</h2>
 						</div>
 					</div>
-				</Reveal>
+				</div>
 
-				<Reveal delay={0.06}>
+				<div>
 					{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: pausing on hover is a convenience, every tab stays operable */}
 					<div
 						className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16"
@@ -188,7 +190,11 @@ export function HowItWorks() {
 						onMouseLeave={() => setPaused(false)}
 					>
 						<div>
-							<div role="tablist" aria-label="How it works" className="border-t border-border">
+							<div
+								role="tablist"
+								aria-label="How it works"
+								className="border-t border-border"
+							>
 								{STEPS.map((s, i) => {
 									const on = i === active;
 									return (
@@ -226,7 +232,10 @@ export function HowItWorks() {
 														initial={still ? false : { height: 0, opacity: 0 }}
 														animate={{ height: "auto", opacity: 1 }}
 														exit={still ? undefined : { height: 0, opacity: 0 }}
-														transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+														transition={{
+															duration: 0.35,
+															ease: [0.22, 1, 0.36, 1],
+														}}
 														className="overflow-hidden"
 													>
 														<p className="max-w-lg pl-[2.4rem] pr-4 pt-3 text-sm leading-relaxed text-muted-foreground">
@@ -280,7 +289,7 @@ export function HowItWorks() {
 							</div>
 						</div>
 					</div>
-				</Reveal>
+				</div>
 			</div>
 		</section>
 	);
