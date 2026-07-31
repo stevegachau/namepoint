@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Check, Link2, Search, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -158,7 +158,6 @@ export function HowItWorks() {
 	const still = useReducedMotion();
 	const [active, setActive] = useState(0);
 	const [paused, setPaused] = useState(false);
-	const Body = PANELS[active];
 
 	useEffect(() => {
 		if (still || paused) return;
@@ -172,120 +171,118 @@ export function HowItWorks() {
 	return (
 		<section id="how" className="w-full scroll-mt-24 border-t border-border/60">
 			<div className="container mx-auto py-20 md:py-28">
-				<div>
-					<div className="flex flex-wrap items-end justify-between gap-6">
-						<div>
-							<h2 className="mt-6 max-w-xl text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
-								Three steps, one signature
-							</h2>
+				<h2 className="max-w-xl text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
+					Three steps, one signature
+				</h2>
+
+				{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: pausing on hover is a convenience, every tab stays operable */}
+				<div
+					className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
+					onMouseEnter={() => setPaused(true)}
+					onMouseLeave={() => setPaused(false)}
+				>
+					<div className="lg:order-2">
+						<div
+							role="tablist"
+							aria-label="How it works"
+							className="border-t border-border"
+						>
+							{STEPS.map((s, i) => {
+								const on = i === active;
+								return (
+									<button
+										key={s.title}
+										type="button"
+										role="tab"
+										aria-selected={on}
+										onClick={() => setActive(i)}
+										className="group relative flex w-full items-baseline gap-4 border-b border-border/60 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									>
+										<span
+											className={`font-mono text-[0.7rem] tabular-nums transition-colors ${
+												on ? "text-primary" : "text-muted-foreground/50"
+											}`}
+										>
+											{String(i + 1).padStart(2, "0")}
+										</span>
+										<span
+											className={`text-lg tracking-tight transition-colors md:text-xl ${
+												on
+													? "text-foreground"
+													: "text-foreground/40 group-hover:text-foreground/70"
+											}`}
+										>
+											{s.title}
+										</span>
+
+										{/* Time remaining on this step, as a rule along the row. */}
+										{on && !still && (
+											<motion.span
+												key={`bar-${active}-${paused}`}
+												aria-hidden="true"
+												className="absolute -bottom-px left-0 h-px bg-primary"
+												initial={{ width: paused ? "100%" : "0%" }}
+												animate={{ width: "100%" }}
+												transition={{
+													duration: paused ? 0 : STEP_MS / 1000,
+													ease: "linear",
+												}}
+											/>
+										)}
+									</button>
+								);
+							})}
+						</div>
+
+						{/*
+						  All three descriptions occupy one grid cell, so the block is as
+						  tall as the longest of them and never changes height. Expanding
+						  and collapsing an accordion body here resized the section on every
+						  tick and pushed everything below it down the page.
+						*/}
+						<div className="mt-5 grid">
+							{STEPS.map((s, i) => (
+								<p
+									key={s.title}
+									aria-hidden={i !== active}
+									className={`col-start-1 row-start-1 max-w-lg text-sm leading-relaxed text-muted-foreground transition-opacity duration-300 ${
+										i === active ? "opacity-100" : "invisible opacity-0"
+									}`}
+								>
+									{s.body}
+								</p>
+							))}
 						</div>
 					</div>
-				</div>
 
-				<div>
-					{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: pausing on hover is a convenience, every tab stays operable */}
-					<div
-						className="mt-12 grid items-center gap-10 lg:grid-cols-2 lg:gap-16"
-						onMouseEnter={() => setPaused(true)}
-						onMouseLeave={() => setPaused(false)}
-					>
-						<div className="lg:order-2">
-							<div
-								role="tablist"
-								aria-label="How it works"
-								className="border-t border-border"
-							>
-								{STEPS.map((s, i) => {
-									const on = i === active;
-									return (
-										<button
-											key={s.title}
-											type="button"
-											role="tab"
-											aria-selected={on}
-											onClick={() => setActive(i)}
-											className="group relative block w-full border-b border-border/60 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-										>
-											<span className="flex items-baseline gap-4">
-												<span
-													className={`font-mono text-[0.7rem] tabular-nums transition-colors ${
-														on ? "text-primary" : "text-muted-foreground/50"
-													}`}
-												>
-													{String(i + 1).padStart(2, "0")}
-												</span>
-												<span
-													className={`text-lg tracking-tight transition-colors md:text-xl ${
-														on
-															? "text-foreground"
-															: "text-foreground/40 group-hover:text-foreground/70"
-													}`}
-												>
-													{s.title}
-												</span>
-											</span>
-
-											<AnimatePresence initial={false}>
-												{on && (
-													<motion.div
-														key="body"
-														initial={still ? false : { height: 0, opacity: 0 }}
-														animate={{ height: "auto", opacity: 1 }}
-														exit={still ? undefined : { height: 0, opacity: 0 }}
-														transition={{
-															duration: 0.35,
-															ease: [0.22, 1, 0.36, 1],
-														}}
-														className="overflow-hidden"
-													>
-														<p className="max-w-lg pl-[2.4rem] pr-4 pt-3 text-sm leading-relaxed text-muted-foreground">
-															{s.body}
-														</p>
-													</motion.div>
-												)}
-											</AnimatePresence>
-
-											{/* Time remaining on this step, as a rule along the row. */}
-											{on && !still && (
-												<motion.span
-													key={`bar-${active}-${paused}`}
-													aria-hidden="true"
-													className="absolute -bottom-px left-0 h-px bg-primary"
-													initial={{ width: paused ? "100%" : "0%" }}
-													animate={{ width: "100%" }}
-													transition={{
-														duration: paused ? 0 : STEP_MS / 1000,
-														ease: "linear",
-													}}
-												/>
-											)}
-										</button>
-									);
-								})}
+					<div className="lg:order-1">
+						<div className="shadow-soft overflow-hidden rounded-md border border-border bg-card">
+							<div className="flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-5 py-3">
+								<span className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
+									{STEPS[active].title}
+								</span>
+								<span className="font-mono text-[0.65rem] tabular-nums text-muted-foreground">
+									{String(active + 1).padStart(2, "0")} / 03
+								</span>
 							</div>
-						</div>
 
-						<div className="lg:order-1">
-							<div className="shadow-soft overflow-hidden rounded-md border border-border bg-card">
-								<div className="flex items-center justify-between gap-3 border-b border-border/70 bg-secondary/40 px-5 py-3">
-									<span className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground">
-										{STEPS[active].title}
-									</span>
-									<span className="font-mono text-[0.65rem] tabular-nums text-muted-foreground">
-										{String(active + 1).padStart(2, "0")} / 03
-									</span>
-								</div>
-								<AnimatePresence mode="wait">
-									<motion.div
-										key={active}
-										initial={still ? false : { opacity: 0, y: 10 }}
-										animate={{ opacity: 1, y: 0 }}
-										exit={still ? undefined : { opacity: 0, y: -8 }}
-										transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+							{/*
+							  Same technique for the panels: stacked in one cell so the card
+							  is the height of the tallest screen and swapping does not
+							  resize the column.
+							*/}
+							<div className="grid">
+								{PANELS.map((P, i) => (
+									<div
+										key={STEPS[i].title}
+										aria-hidden={i !== active}
+										className={`col-start-1 row-start-1 transition-opacity duration-300 ${
+											i === active ? "opacity-100" : "invisible opacity-0"
+										}`}
 									>
-										<Body />
-									</motion.div>
-								</AnimatePresence>
+										<P />
+									</div>
+								))}
 							</div>
 						</div>
 					</div>
