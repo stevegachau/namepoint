@@ -41,13 +41,13 @@ function Hero({ onChooseName }: Props) {
 				  the type to the left edge and setting the supporting column beside it
 				  gives the fold an axis to read along.
 				*/}
-				<div className="flex flex-col gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
+				<div className="flex flex-col gap-7 pb-10 pt-6 lg:pb-16 lg:pt-9">
 					<div>
 						<a
 							href="#scope"
 							// Sized down on the narrowest screens: at 320px this wrapped to two
 							// lines, and a clickable that wraps is a broken tap target.
-							className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-2.5 pr-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-2.5 sm:pl-3 sm:pr-4 sm:text-sm"
+							className="inline-flex items-center gap-2 whitespace-nowrap rounded-md border border-border bg-secondary/50 py-1.5 pl-2.5 pr-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-2.5 sm:pl-3 sm:pr-4 sm:text-sm"
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
 							No approvals, no custody, no fee
@@ -56,7 +56,7 @@ function Hero({ onChooseName }: Props) {
 					</div>
 
 					<div className="flex flex-col gap-6">
-						<h1 className="max-w-5xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-6xl md:text-7xl xl:text-8xl">
+						<h1 className="max-w-5xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-5xl md:text-6xl xl:text-7xl">
 							<span className="block text-brand">Point your .eth at</span>
 							<span className="relative block h-[1.12em] overflow-hidden">
 								{titles.map((title, index) => (
@@ -83,7 +83,7 @@ function Hero({ onChooseName }: Props) {
 							</span>
 						</h1>
 
-						<p className="max-w-xl text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
+						<p className="max-w-xl text-base leading-relaxed tracking-tight text-muted-foreground">
 							Your name forwards to any URL you choose. Point it somewhere else
 							later without setting the redirect up again.
 						</p>
@@ -94,7 +94,7 @@ function Hero({ onChooseName }: Props) {
 							<Button
 								size="lg"
 								onClick={onChooseName}
-								className="group gap-2.5 rounded-full px-7"
+								className="group gap-2.5 rounded-md px-6"
 							>
 								<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
 								Choose a name
@@ -102,7 +102,7 @@ function Hero({ onChooseName }: Props) {
 							<Button
 								size="lg"
 								variant="outline"
-								className="group gap-2.5 rounded-full px-7"
+								className="group gap-2.5 rounded-md px-6"
 								asChild
 							>
 								<a href="#how">

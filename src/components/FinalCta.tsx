@@ -34,7 +34,7 @@ export function FinalCta({ onChooseName, connected }: Props) {
 							<Button
 								size="lg"
 								onClick={onChooseName}
-								className="group gap-2.5 rounded-full px-7"
+								className="group gap-2.5 rounded-md px-6"
 							>
 								<Sparkles className="h-4 w-4 flex-none transition-transform duration-500 group-hover:rotate-12 group-hover:scale-110" />
 								{connected ? "Choose a name" : "Connect a wallet"}

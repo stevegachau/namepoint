@@ -1,3 +1,8 @@
+/* Hallmark · macrostructure: Split Studio · genre: modern-minimal · theme: Cobalt
+ * nav: N5 floating pill · footer: Ft4 dense colophon
+ * deviations: glassmorphic nav (user request, genre disallows)
+ *             re-drawn browser chrome in hero (user request, gate 47)
+ */
 @import "./styles/fonts.css";
 
 @property --beam-angle {
@@ -87,7 +92,11 @@
 		--shadow: 214 60% 12%;
 		--shadow-strength: 1;
 
-		--radius: 0.65rem;
+		/*
+		 * Cobalt runs tight. Soft 10px+ corners are the warm-SaaS voice; the
+		 * instrument-panel register wants 6px and a visible border.
+		 */
+		--radius: 0.375rem;
 	}
 
 	.dark {

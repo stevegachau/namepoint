@@ -121,7 +121,12 @@ export function HeroArtifact() {
 
 					{/* The address bar carries the whole demonstration. */}
 					<div className="relative min-w-0 flex-1 overflow-hidden rounded-md border border-border/60 bg-background/90">
-						<div className="flex items-center gap-2 px-3 py-1.5">
+						{/*
+						  Fixed row height: the "via …" chip is taller than the bare URL
+						  text, so letting the row size to its content made the whole
+						  window breathe by a couple of pixels each cycle.
+						*/}
+						<div className="flex h-8 items-center gap-2 px-3">
 							{phase === "landed" ? (
 								<Lock className="h-3 w-3 flex-none text-ok" />
 							) : phase === "resolving" ? (
