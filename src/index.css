@@ -137,6 +137,16 @@
 		@apply border-border;
 	}
 
+	html,
+	body {
+		/*
+		 * `clip`, not `hidden`: hidden makes the root a scroll container, which
+		 * silently kills `position: sticky` on the navbar. clip contains the
+		 * marquee overhang without that side effect.
+		 */
+		overflow-x: clip;
+	}
+
 	html {
 		scroll-behavior: smooth;
 	}

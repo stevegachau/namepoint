@@ -35,27 +35,34 @@ function Hero({ onChooseName }: Props) {
 	return (
 		<div className="w-full">
 			<div className="container mx-auto">
-				<div className="flex flex-col items-center justify-center gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
+				{/*
+				  Left-biased, not centred. A centred stack of badge, headline, one
+				  sentence and two buttons is the default landing-page shape; anchoring
+				  the type to the left edge and setting the supporting column beside it
+				  gives the fold an axis to read along.
+				*/}
+				<div className="flex flex-col gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
 					<div>
 						<a
 							href="#scope"
-							className="inline-flex items-center gap-2.5 rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-3 pr-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+							// Sized down on the narrowest screens: at 320px this wrapped to two
+							// lines, and a clickable that wraps is a broken tap target.
+							className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-2.5 pr-3 text-xs font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:gap-2.5 sm:pl-3 sm:pr-4 sm:text-sm"
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
 							No approvals, no custody, no fee
-							<ChevronsDown className="h-3.5 w-3.5 flex-none -rotate-90 text-muted-foreground" />
+							<ChevronsDown className="hidden h-3.5 w-3.5 flex-none -rotate-90 text-muted-foreground sm:block" />
 						</a>
 					</div>
 
-					<div className="flex flex-col gap-5">
-						<h1 className="max-w-3xl text-center font-regular text-[2.6rem] leading-[1.05] tracking-tighter sm:text-6xl md:text-7xl">
-							<span className="text-brand">Point your .eth at</span>
-							<span className="relative flex w-full justify-center overflow-hidden text-center md:pb-4 md:pt-1">
-								&nbsp;
+					<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:items-end lg:gap-16">
+						<h1 className="max-w-3xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-6xl md:text-7xl">
+							<span className="block text-brand">Point your .eth at</span>
+							<span className="relative block h-[1.12em] overflow-hidden">
 								{titles.map((title, index) => (
 									<motion.span
 										key={title}
-										className="absolute font-semibold"
+										className="absolute left-0 font-semibold"
 										initial={{ opacity: 0, y: "-100" }}
 										transition={{ type: "spring", stiffness: 50 }}
 										animate={
@@ -76,7 +83,7 @@ function Hero({ onChooseName }: Props) {
 							</span>
 						</h1>
 
-						<p className="max-w-xl text-center text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
+						<p className="text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg lg:pb-3">
 							Your name forwards to any URL you choose. Point it somewhere else
 							later without setting the redirect up again.
 						</p>
@@ -109,7 +116,7 @@ function Hero({ onChooseName }: Props) {
 					</p>
 
 					{/* The product itself, directly under the claim it supports. */}
-					<div className="mt-6 flex w-full justify-center lg:mt-10">
+					<div className="mt-4 flex w-full lg:mt-8">
 						<HeroArtifact />
 					</div>
 				</div>

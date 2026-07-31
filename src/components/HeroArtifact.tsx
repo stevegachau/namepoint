@@ -89,7 +89,7 @@ export function HeroArtifact() {
 	}, [idx, still]);
 
 	return (
-		<div className="relative w-full max-w-4xl">
+		<div className="relative w-full max-w-5xl">
 			<div className="border-beam shadow-float relative overflow-hidden rounded-xl border border-border/70 bg-card">
 				{/* chrome */}
 				<div className="flex items-center gap-3 border-b border-border/70 bg-secondary/40 px-4 py-3">
