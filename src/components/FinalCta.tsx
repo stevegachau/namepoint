@@ -1,5 +1,4 @@
 import { Sparkles } from "lucide-react";
-import { Reveal } from "@/components/Reveal";
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -16,13 +15,8 @@ export function FinalCta({ onChooseName, connected }: Props) {
 	return (
 		<section className="w-full pb-20 pt-4 md:pb-28">
 			<div className="container mx-auto">
-				<Reveal>
+				<div>
 					<div className="shadow-float relative isolate overflow-hidden rounded-2xl border border-border/70 bg-card px-6 py-16 text-center md:px-12 md:py-20">
-						{/* Light inside the card, pooled behind the heading. */}
-						<span
-							aria-hidden="true"
-							className="pointer-events-none absolute left-1/2 top-0 h-[22rem] w-[38rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/25 blur-[80px]"
-						/>
 						<span
 							aria-hidden="true"
 							className="bg-dotgrid pointer-events-none absolute inset-0 -z-10 opacity-70"
@@ -47,7 +41,7 @@ export function FinalCta({ onChooseName, connected }: Props) {
 							</Button>
 						</div>
 					</div>
-				</Reveal>
+				</div>
 			</div>
 		</section>
 	);

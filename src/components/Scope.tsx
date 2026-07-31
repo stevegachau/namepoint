@@ -1,7 +1,3 @@
-import { ShieldCheck } from "lucide-react";
-import { Eyebrow } from "@/components/Eyebrow";
-import { Reveal } from "@/components/Reveal";
-
 /**
  * The reach of the single call the app makes, in three registers: what changes,
  * what is left alone, and what the transaction never touches.
@@ -50,9 +46,8 @@ export function Scope() {
 		>
 			<div className="container mx-auto py-20 md:py-28">
 				<div className="grid gap-12 lg:grid-cols-[minmax(0,24rem)_minmax(0,1fr)] lg:gap-20">
-					<Reveal>
+					<div>
 						<div className="lg:sticky lg:top-28">
-							<Eyebrow icon={ShieldCheck}>Scope</Eyebrow>
 							<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 								What one transaction touches.
 							</h2>
@@ -81,11 +76,11 @@ export function Scope() {
 								</pre>
 							</div>
 						</div>
-					</Reveal>
+					</div>
 
 					<div>
 						{GROUPS.map((g, gi) => (
-							<Reveal key={g.label} delay={gi * 0.07}>
+							<div>
 								<div className={gi > 0 ? "mt-12" : ""}>
 									<div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-border pb-3">
 										<h3 className="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-foreground">
@@ -126,17 +121,17 @@ export function Scope() {
 										))}
 									</dl>
 								</div>
-							</Reveal>
+							</div>
 						))}
 
-						<Reveal delay={0.24}>
+						<div>
 							<p className="mt-10 max-w-xl text-sm leading-relaxed text-muted-foreground">
 								The destination lives in the url record, so pointing the name
 								somewhere else later is one transaction on that record alone,
 								here or in any ENS manager. The redirect stays as it is, and if
 								this site went offline your name would carry on working.
 							</p>
-						</Reveal>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,8 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, Check, Link2, Route, Search, Wallet } from "lucide-react";
+import { ArrowRight, Check, Link2, Search, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Eyebrow } from "@/components/Eyebrow";
-import { Reveal } from "@/components/Reveal";
 
 /**
  * Three steps as tabs that advance on a timer. Clicking a tab takes over from
@@ -174,18 +172,17 @@ export function HowItWorks() {
 	return (
 		<section id="how" className="w-full scroll-mt-24 border-t border-border/60">
 			<div className="container mx-auto py-20 md:py-28">
-				<Reveal>
+				<div>
 					<div className="flex flex-wrap items-end justify-between gap-6">
 						<div>
-							<Eyebrow icon={Route}>How it works</Eyebrow>
 							<h2 className="mt-6 max-w-xl text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
 								Three steps, one signature
 							</h2>
 						</div>
 					</div>
-				</Reveal>
+				</div>
 
-				<Reveal delay={0.06}>
+				<div>
 					{/* biome-ignore lint/a11y/noNoninteractiveElementInteractions: pausing on hover is a convenience, every tab stays operable */}
 					<div
 						className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,28rem)] lg:gap-16"
@@ -292,7 +289,7 @@ export function HowItWorks() {
 							</div>
 						</div>
 					</div>
-				</Reveal>
+				</div>
 			</div>
 		</section>
 	);

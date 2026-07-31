@@ -90,12 +90,6 @@ export function HeroArtifact() {
 
 	return (
 		<div className="relative w-full max-w-4xl">
-			{/* Light pooled under the window, so it sits on the page. */}
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-10 -bottom-5 h-24 rounded-[50%] bg-primary/20 blur-3xl"
-			/>
-
 			<div className="border-beam shadow-float relative overflow-hidden rounded-xl border border-border/70 bg-card">
 				{/* chrome */}
 				<div className="flex items-center gap-3 border-b border-border/70 bg-secondary/40 px-4 py-3">

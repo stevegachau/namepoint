@@ -82,6 +82,11 @@
 		/* Headline accent — the quieter half of the rotating hero line. */
 		--brand: 214 52% 26%;
 
+		/* Shadows are always cast in ink. Tinting them with --foreground meant
+		   dark mode painted a light halo around every raised surface. */
+		--shadow: 214 60% 12%;
+		--shadow-strength: 1;
+
 		--radius: 0.65rem;
 	}
 
@@ -119,6 +124,11 @@
 		--ring: 214 94% 62%;
 
 		--brand: 214 94% 72%;
+
+		/* On a dark canvas elevation reads through surface lightness, not shadow,
+		   so the shadow drops back to a near-black hint. */
+		--shadow: 214 80% 2%;
+		--shadow-strength: 0.55;
 	}
 }
 
@@ -164,13 +174,18 @@
 		background-position: -13px -13px;
 	}
 
-	/* Slow-drifting blue light blooms that give the ink canvas depth. */
-	.aurora {
+	/*
+	 * Fine grain over the hero. Replaces the blurred colour blobs that used to
+	 * sit back there: those read as generated ambience, whereas grain gives the
+	 * surface a texture without pretending to be depth.
+	 */
+	.grain::after {
+		content: "";
 		position: absolute;
-		border-radius: 9999px;
-		filter: blur(90px);
-		opacity: 0.5;
-		will-change: transform;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.055;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 	}
 
 	/* Edge fade so the spec tape dissolves at both ends of the bar. */
@@ -199,16 +214,16 @@
 	 */
 	.shadow-soft {
 		box-shadow:
-			0 1px 2px hsl(var(--foreground) / 0.05),
-			0 8px 24px -8px hsl(var(--foreground) / 0.1),
-			0 20px 48px -20px hsl(var(--foreground) / 0.14);
+			0 1px 2px hsl(var(--shadow) / calc(0.05 * var(--shadow-strength))),
+			0 8px 24px -8px hsl(var(--shadow) / calc(0.1 * var(--shadow-strength))),
+			0 20px 48px -20px hsl(var(--shadow) / calc(0.14 * var(--shadow-strength)));
 	}
 
 	.shadow-float {
 		box-shadow:
-			0 2px 4px hsl(var(--foreground) / 0.06),
-			0 16px 40px -12px hsl(var(--foreground) / 0.14),
-			0 44px 96px -32px hsl(var(--foreground) / 0.22);
+			0 2px 4px hsl(var(--shadow) / calc(0.06 * var(--shadow-strength))),
+			0 16px 40px -12px hsl(var(--shadow) / calc(0.14 * var(--shadow-strength))),
+			0 44px 96px -32px hsl(var(--shadow) / calc(0.22 * var(--shadow-strength)));
 	}
 
 	/* Frosted bar used by the floating nav pill. */
