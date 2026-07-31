@@ -41,7 +41,7 @@ function Hero({ onChooseName }: Props) {
 				  the type to the left edge and setting the supporting column beside it
 				  gives the fold an axis to read along.
 				*/}
-				<div className="flex flex-col gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
+				<div className="flex flex-col gap-7 pb-10 pt-6 lg:pb-16 lg:pt-9">
 					<div>
 						<a
 							href="#scope"
@@ -56,7 +56,7 @@ function Hero({ onChooseName }: Props) {
 					</div>
 
 					<div className="flex flex-col gap-6">
-						<h1 className="max-w-5xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-6xl md:text-7xl xl:text-8xl">
+						<h1 className="max-w-5xl font-regular text-[2.6rem] leading-[1.03] tracking-tighter sm:text-5xl md:text-6xl xl:text-7xl">
 							<span className="block text-brand">Point your .eth at</span>
 							<span className="relative block h-[1.12em] overflow-hidden">
 								{titles.map((title, index) => (
@@ -83,7 +83,7 @@ function Hero({ onChooseName }: Props) {
 							</span>
 						</h1>
 
-						<p className="max-w-xl text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
+						<p className="max-w-xl text-base leading-relaxed tracking-tight text-muted-foreground">
 							Your name forwards to any URL you choose. Point it somewhere else
 							later without setting the redirect up again.
 						</p>
