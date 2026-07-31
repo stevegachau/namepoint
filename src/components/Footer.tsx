@@ -1,4 +1,6 @@
+import { Github } from "lucide-react";
 import { Wordmark } from "@/components/Wordmark";
+import { REPO_URL } from "@/site";
 
 const LINKS = [
 	{ label: "How", href: "#how" },
@@ -24,7 +26,7 @@ export function Footer() {
 					<a href="#top" className="group flex-none">
 						<Wordmark size="sm" />
 					</a>
-					<nav className="flex flex-wrap gap-x-6 gap-y-2">
+					<nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
 						{LINKS.map((l) => (
 							<a
 								key={l.label}
@@ -34,6 +36,15 @@ export function Footer() {
 								{l.label}
 							</a>
 						))}
+						<a
+							href={REPO_URL}
+							target="_blank"
+							rel="noreferrer"
+							className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+						>
+							<Github className="h-4 w-4 flex-none" />
+							Source
+						</a>
 					</nav>
 				</div>
 
@@ -49,9 +60,14 @@ export function Footer() {
 					<p className="font-mono text-xs text-muted-foreground">
 						ENSIP-7 contenthash &middot; ENSIP-5 url &middot; Ethereum mainnet
 					</p>
-					<p className="font-mono text-xs text-muted-foreground/70">
+					<a
+						href={REPO_URL}
+						target="_blank"
+						rel="noreferrer"
+						className="font-mono text-xs text-muted-foreground/70 transition-colors hover:text-foreground"
+					>
 						MIT licensed
-					</p>
+					</a>
 				</div>
 			</div>
 		</footer>

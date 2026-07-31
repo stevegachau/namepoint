@@ -6,10 +6,8 @@ import { useEffect, useState } from "react";
  * The redirect, performed.
  *
  * A visitor types an ENS name, it resolves, and the address bar lands on the
- * destination. The address bar is the whole demonstration: a name goes in and a
- * different URL comes out, which is the one thing the product does. The previous
- * version never showed the destination in the bar, which is why the sequence did
- * not parse.
+ * destination. The address bar carries the demonstration: a name goes in and a
+ * different URL comes out.
  *
  * The destination is drawn as a stylised page rather than a screenshot. These are
  * real sites, and rendering an invented approximation of how they look would be a
@@ -56,9 +54,8 @@ export function HeroArtifact() {
 
 	/**
 	 * The whole sequence is scheduled once, from one effect, against a single
-	 * timeline. Chaining a timer per phase and re-entering on each state change
-	 * meant two advance timers could overlap, which stepped the index twice and
-	 * restarted mid-word.
+	 * timeline, so phases cannot overlap and the index advances exactly once per
+	 * cycle.
 	 */
 	useEffect(() => {
 		if (still) {

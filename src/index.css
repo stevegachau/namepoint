@@ -26,15 +26,12 @@
 @tailwind utilities;
 
 /*
- * Token system inherited from the uploaded template's shadcn structure, with
- * the accent moved off the template's trade-desk cyan onto ENS blue — this
- * product lives in the ENS ecosystem, and its audience recognises that blue.
- * The ink canvas, the HSL-channel token shape and the light/dark split are
- * the template's, kept verbatim in structure so every shadcn class still works.
+ * Design tokens, in the shadcn HSL-channel shape so every shadcn class resolves
+ * against them. The accent is ENS blue, which is the palette this product's
+ * audience recognises.
  *
- * Extra tokens beyond the template: --ok and --warn. The redirect flow reports
- * three outcome states (confirmed / pending / failed), so it needs a success
- * and a caution colour, not just --destructive.
+ * --ok and --warn sit alongside --destructive because the redirect flow reports
+ * three outcome states: confirmed, pending and failed.
  */
 @layer base {
 	:root {

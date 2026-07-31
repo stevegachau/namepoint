@@ -8,8 +8,6 @@ import { Mark } from "@/components/Mark";
  * height that only looks right at one of them. 1.05em puts the mark a little
  * above the cap height of Space Grotesk, which is where a mark should sit.
  *
- * No tinted rounded tile any more. That container was what made the old glyph
- * read as an interface affordance rather than a logo.
  */
 export function Wordmark({ size = "md" }: { size?: "sm" | "md" }) {
 	const text = size === "sm" ? "text-base" : "text-lg";

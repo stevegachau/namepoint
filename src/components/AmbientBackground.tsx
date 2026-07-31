@@ -2,8 +2,7 @@
  * Decorative, non-interactive backdrop for the hero: a faint engineered
  * dot-grid plus two slow blue light blooms. Purely atmospheric — hidden from
  * assistive tech and frozen under prefers-reduced-motion (see index.css).
- * This replaces the original app's 2.1MB background video, which cost more to
- * load than it contributed and read as a stock flourish rather than a product.
+ * Built from CSS gradients, so the page ships no video or image assets.
  */
 export function AmbientBackground() {
 	return (

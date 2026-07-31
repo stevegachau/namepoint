@@ -10,11 +10,9 @@ type Props = {
 };
 
 /**
- * The template's rotating-headline hero, kept mechanically identical (local
- * index state, 2s timeout, framer-motion spring, absolutely positioned words)
- * and repointed at the real proposition. The rotating slot now carries the
- * destinations a name can forward to, which is the one variable the product
- * actually exposes, so the motion says something instead of just moving.
+ * Rotating-headline hero. The rotating slot carries the destinations a name can
+ * forward to, which is the one variable the product exposes, so the motion
+ * carries meaning rather than only movement.
  */
 function Hero({ onChooseName }: Props) {
 	const [titleNumber, setTitleNumber] = useState(0);
@@ -40,11 +38,11 @@ function Hero({ onChooseName }: Props) {
 				<div className="flex flex-col items-center justify-center gap-8 pb-10 pt-14 lg:pb-16 lg:pt-20">
 					<div>
 						<a
-							href="#custody"
+							href="#scope"
 							className="inline-flex items-center gap-2.5 rounded-full border border-border/70 bg-secondary/60 py-1.5 pl-3 pr-4 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
 						>
 							<ShieldCheck className="h-4 w-4 flex-none text-primary" />
-							One call to your own resolver
+							No approvals, no custody, no fee
 							<MoveRight className="h-3.5 w-3.5 flex-none text-muted-foreground" />
 						</a>
 					</div>
@@ -79,8 +77,8 @@ function Hero({ onChooseName }: Props) {
 						</h1>
 
 						<p className="max-w-xl text-center text-base leading-relaxed tracking-tight text-muted-foreground md:text-lg">
-							Your name forwards to its url record. Change the record to change
-							the destination, with no further transaction.
+							Your name forwards to any URL you choose. Point it somewhere else
+							later without setting the redirect up again.
 						</p>
 					</div>
 

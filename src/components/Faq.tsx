@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
+import { REPO_URL } from "@/site";
 
 /**
  * Native <details> so the accordion works without JavaScript, keyboard support
@@ -13,7 +14,7 @@ const QA: { q: string; a: string }[] = [
 	},
 	{
 		q: "Can the destination change later?",
-		a: "Yes. Edit the destination here, which is one transaction touching only the url record, or edit the record in any ENS manager. The redirect follows it on the next request.",
+		a: "Yes. Change it here or in any ENS manager. It is one transaction that touches only the url record, and the redirect itself stays as it is, so there is nothing to set up again.",
 	},
 	{
 		q: "What if the url record is not set?",
@@ -56,8 +57,17 @@ export function Faq() {
 							Before you sign
 						</h2>
 						<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-							These describe what the app actually does. Where an answer and the
-							source disagree, the source is correct.
+							Everything below describes the app as it works today. If you would
+							rather read the code,{" "}
+							<a
+								href={REPO_URL}
+								target="_blank"
+								rel="noreferrer"
+								className="text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+							>
+								it is on GitHub
+							</a>
+							.
 						</p>
 					</Reveal>
 

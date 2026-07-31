@@ -1,16 +1,10 @@
 import { Reveal } from "@/components/Reveal";
 
 /**
- * One section where there were two.
+ * The reach of the single call the app makes, in three registers: what changes,
+ * what is left alone, and what the transaction never touches.
  *
- * "What it writes" and "What it cannot do" were the same argument — the blast
- * radius of a single call — split in half, which made both weak and made the
- * page repeat itself. Together they are a readout: what moves, what is left
- * alone, and what was never in reach. Three registers of the same list.
- *
- * Set as ruled rows rather than cards. The subject is a record table, so the
- * page shows one, and the word "cannot" is said once in the heading instead of
- * four times across four tiles.
+ * Set as ruled rows rather than cards, because the subject is a record table.
  */
 type Row = { key: string; value: string; tone?: "write" | "keep" | "never" };
 
@@ -25,7 +19,7 @@ const GROUPS: { label: string; note: string; rows: Row[] }[] = [
 	},
 	{
 		label: "Untouched",
-		note: "Read at most. Never written.",
+		note: "Left exactly as they are.",
 		rows: [
 			{ key: "registrant", value: "yours", tone: "keep" },
 			{ key: "manager", value: "yours", tone: "keep" },
@@ -41,7 +35,7 @@ const GROUPS: { label: string; note: string; rows: Row[] }[] = [
 			{ key: "token approvals", value: "none requested", tone: "never" },
 			{ key: "spend allowance", value: "none", tone: "never" },
 			{ key: "name transfer", value: "not possible", tone: "never" },
-			{ key: "our signing key", value: "does not exist", tone: "never" },
+			{ key: "keys held by namepoint", value: "none", tone: "never" },
 		],
 	},
 ];
@@ -55,11 +49,11 @@ export function Scope() {
 						<div className="lg:sticky lg:top-28">
 							<p className="eyebrow">Scope</p>
 							<h2 className="mt-6 text-[2.1rem] font-medium leading-[1.08] tracking-tighter md:text-[2.9rem]">
-								Everything one call can reach.
+								What one transaction touches.
 							</h2>
 							<p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-								This is the whole transaction. Anything not in it, the app simply
-								has no way to do.
+								This is the whole transaction. If something is not in it, the app
+								has no way to do it.
 							</p>
 
 							{/* The call itself, lit at the edge because it is the claim. */}
@@ -113,7 +107,7 @@ export function Scope() {
 														r.tone === "write"
 															? "text-primary"
 															: r.tone === "never"
-																? "text-muted-foreground/60 line-through decoration-muted-foreground/30"
+																? "text-muted-foreground/60"
 																: "text-muted-foreground/70"
 													}`}
 												>
@@ -129,9 +123,9 @@ export function Scope() {
 						<Reveal delay={0.24}>
 							<p className="mt-10 max-w-xl text-sm leading-relaxed text-muted-foreground">
 								The destination lives in the url record, so pointing the name
-								somewhere else later is just editing that record, here or in any
-								ENS manager. If this site went offline your name would carry on
-								working.
+								somewhere else later is one transaction on that record alone, here
+								or in any ENS manager. The redirect stays as it is, and if this
+								site went offline your name would carry on working.
 							</p>
 						</Reveal>
 					</div>

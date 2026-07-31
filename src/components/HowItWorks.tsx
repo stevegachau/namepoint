@@ -4,16 +4,12 @@ import { useEffect, useState } from "react";
 import { Reveal } from "@/components/Reveal";
 
 /**
- * Three steps as tabs that advance themselves.
+ * Three steps as tabs that advance on a timer. Clicking a tab takes over from
+ * the timer, and hovering the section pauses it.
  *
- * The scroll-pinned version tied the panel's position to viewport-height
- * guesses, which is where its spacing broke. Advancing on a timer instead makes
- * the section a fixed block that behaves the same at any height, and clicking a
- * tab takes over from the timer.
- *
- * Each panel is the real screen rather than a description of it. Numbering is
- * kept here, and only here, because this genuinely is an ordered sequence: you
- * cannot sign before the app has checked you can write.
+ * Each panel mirrors the corresponding NameSheet view, so the section shows the
+ * real screens rather than describing them. The steps are numbered because the
+ * order carries information: authorisation is checked before anything is signed.
  */
 const STEPS = [
 	{
@@ -24,7 +20,7 @@ const STEPS = [
 	{
 		icon: Link2,
 		title: "Set the destination",
-		body: "Enter the URL the name should forward to. It is written to the url record, which the redirect resolves on every request, so changing it later needs no transaction here.",
+		body: "Enter the URL the name should forward to. It is saved to the url record, which the redirect reads on every request, so you can point the name elsewhere later without touching the redirect itself.",
 	},
 	{
 		icon: Wallet,

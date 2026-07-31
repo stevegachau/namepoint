@@ -13,13 +13,12 @@ import NameSheet from "@/NameSheet";
 import type { Injected } from "@/wallet";
 
 /**
- * Page shell following the uploaded template: sticky glass navbar, marquee tape,
- * hero over an ambient background, then supporting sections and a footer.
+ * Page shell: sticky navbar, spec tape, hero over an ambient background, then
+ * the supporting sections and a footer.
  *
- * The wallet state machine below is carried over from the original app
- * unchanged, because it is the part that has been tested against real wallets:
- * the same connect callback, the same accountsChanged / disconnect listeners and
- * the same best-effort primary-name then avatar resolution.
+ * Also owns the wallet state: the connect callback, the accountsChanged and
+ * disconnect listeners, and best-effort resolution of the primary name and then
+ * the avatar.
  */
 export default function App() {
 	const [sheetOpen, setSheetOpen] = useState(false);
