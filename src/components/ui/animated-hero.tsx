@@ -10,11 +10,9 @@ type Props = {
 };
 
 /**
- * The template's rotating-headline hero, kept mechanically identical (local
- * index state, 2s timeout, framer-motion spring, absolutely positioned words)
- * and repointed at the real proposition. The rotating slot now carries the
- * destinations a name can forward to, which is the one variable the product
- * actually exposes, so the motion says something instead of just moving.
+ * Rotating-headline hero. The rotating slot carries the destinations a name can
+ * forward to, which is the one variable the product exposes, so the motion
+ * carries meaning rather than only movement.
  */
 function Hero({ onChooseName }: Props) {
 	const [titleNumber, setTitleNumber] = useState(0);

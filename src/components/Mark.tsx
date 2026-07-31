@@ -5,22 +5,15 @@
  * the name, the arch is the hop, and the right leg stops half way down to a solid
  * disc — the point it lands on. The gap is the idea, so it stays.
  *
- * Proportions, all in the 48-unit space below, chosen against renders rather than
- * by eye:
+ * Constraints that hold the drawing together, in the 48-unit space below:
  *
- *   arch      elliptical, 12.5 x 11. A true semicircle made the mark narrow
- *             (0.77 aspect) and closed the counter up; flattening it gives a
- *             near-square 0.94 and a counter 2.33x the stem, which is what keeps
- *             it open at favicon size.
- *   disc      exactly one stem wide, so it reads as a period. At 1.4x it read as
- *             a bullet and pulled the eye off the letterform.
- *   leg       half the stem's visible length, so the break reads as deliberate
- *             rather than as a stub. Removing the leg entirely turns the mark
- *             into an "r".
+ *   arch   elliptical, 12.5 x 11. Flatter than a semicircle, which keeps the
+ *          aspect near square and the counter open at favicon size.
+ *   disc   exactly one stem wide, so it reads as a period and not a bullet.
+ *   leg    half the stem's visible length. Without a leg the mark reads as "r".
+ *   base   the stem and the disc share a baseline at y=39.75.
  *
- * The stem and the disc share a baseline at y=39.75; the geometry only works if
- * that stays true. viewBox is cropped to the glyph so callers size the mark
- * itself, not a box of padding around it.
+ * viewBox is cropped to the glyph, so callers size the mark and not padding.
  */
 export function Mark({ className = "" }: { className?: string }) {
 	return (

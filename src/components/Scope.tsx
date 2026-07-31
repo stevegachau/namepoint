@@ -1,16 +1,10 @@
 import { Reveal } from "@/components/Reveal";
 
 /**
- * One section where there were two.
+ * The reach of the single call the app makes, in three registers: what changes,
+ * what is left alone, and what the transaction never touches.
  *
- * "What it writes" and "What it cannot do" were the same argument — the blast
- * radius of a single call — split in half, which made both weak and made the
- * page repeat itself. Together they are a readout: what moves, what is left
- * alone, and what was never in reach. Three registers of the same list.
- *
- * Set as ruled rows rather than cards. The subject is a record table, so the
- * page shows one, and the word "cannot" is said once in the heading instead of
- * four times across four tiles.
+ * Set as ruled rows rather than cards, because the subject is a record table.
  */
 type Row = { key: string; value: string; tone?: "write" | "keep" | "never" };
 

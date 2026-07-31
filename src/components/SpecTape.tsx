@@ -1,10 +1,6 @@
 /**
- * The template's signature device was a market ticker of usage metrics. Those
- * numbers were invented for a demo, and inventing traction for a real product
- * whose whole pitch is "you can verify this yourself" would undercut the thing
- * the page is trying to earn. So the mechanic is kept and the payload swapped:
- * this tape carries the product's actual specification. Every line is a claim a
- * reader can check against the contract call the app makes.
+ * A ticker carrying the product's specification. Every line is a claim a reader
+ * can check against the contract call the app makes, rather than a usage metric.
  *
  * Lines marked `good` are the reassurances, and get the accent colour.
  */
