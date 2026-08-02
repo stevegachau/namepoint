@@ -1,3 +1,5 @@
+import { AnimatedSpan, Terminal, TypingAnimation } from "@/components/Terminal";
+
 /**
  * The reach of the single call the app makes, in three registers: what changes,
  * what is left alone, and what the transaction never touches.
@@ -57,24 +59,25 @@ export function Scope() {
 								app has no way to do it.
 							</p>
 
-							{/* The call itself, lit at the edge because it is the claim. */}
+							{/*
+							  The call itself, typed out on entry. The two setters are the
+							  claim, so they type; the brackets around them only fade in.
+							*/}
 							<div className="border-beam mt-8 rounded-md border border-border bg-card p-4">
-								<pre className="overflow-x-auto font-mono text-[0.72rem] leading-relaxed text-muted-foreground">
-									<code>
-										{`resolver.multicall([
-  `}
-										<span className="text-primary">
-											setText(node, &quot;url&quot;, …)
-										</span>
-										{`,
-  `}
-										<span className="text-primary">
-											setContenthash(node, …)
-										</span>
-										{`,
-])`}
-									</code>
-								</pre>
+								<Terminal className="overflow-x-auto font-mono text-[0.72rem] leading-relaxed">
+									<AnimatedSpan className="text-muted-foreground">
+										resolver.multicall([
+									</AnimatedSpan>
+									<TypingAnimation className="text-primary">
+										{'  setText(node, "url", …),'}
+									</TypingAnimation>
+									<TypingAnimation className="text-primary">
+										{"  setContenthash(node, …),"}
+									</TypingAnimation>
+									<AnimatedSpan className="text-muted-foreground">
+										])
+									</AnimatedSpan>
+								</Terminal>
 							</div>
 
 							<p className="mt-8 max-w-md text-sm leading-relaxed text-muted-foreground">
