@@ -5,3 +5,7 @@ dist
 
 # Per-machine Claude Code permissions, not project config.
 .claude/settings.local.json
+
+# Local secrets. The gateway key ships in the bundle at build time, but it
+# should not sit in the repository where it can be scraped.
+.env

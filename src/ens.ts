@@ -32,7 +32,6 @@ const MAINNET_RPCS = [
 	"https://eth.drpc.org",
 ];
 const ENS_REGISTRY = "0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e";
-const ENSNODE_URL = "https://api.alpha.ensnode.io/api/omnigraph";
 const RESOLVIO = "https://api.resolvio.xyz/ens/v2/profile/";
 const RESOLVIO_REV = "https://api.resolvio.xyz/ens/v2/reverse/";
 
@@ -86,68 +85,66 @@ export const shortAddr = (a?: string | null) =>
 	a ? `${a.slice(0, 6)}\u2026${a.slice(-4)}` : "";
 
 /* ------------------------------------------------------------------ *
- * Name discovery — ENSNode's hosted mainnet instance, no API key.
- * Two query shapes: current schema exposes the name under `canonical`,
- * older builds expose a bare `name` field.
+ * Name discovery — the ENS subgraph
+ *
+ * Reached through TheGraph's decentralised gateway rather than the hosted
+ * service, because the hosted service sends no Access-Control-Allow-Origin and
+ * so cannot be called from a browser at all.
+ *
+ * The gateway key is a rate-limit identifier rather than a secret: a browser
+ * app has nowhere to hide it, so it necessarily ships in the bundle. It is read
+ * from the environment only to keep it out of the repository, where it would be
+ * trivially scraped. Set limits for it in TheGraph Studio.
  * ------------------------------------------------------------------ */
 
-const QUERIES = [
-	`query AccountDomains($address: Address!, $after: String) {
-     account(by: { address: $address }) {
-       domains(first: 100, after: $after) {
-         pageInfo { hasNextPage endCursor }
-         edges { node { canonical { name { interpreted } } } }
-       }
-     }
-   }`,
-	`query AccountDomains($address: Address!, $after: String) {
-     account(by: { address: $address }) {
-       domains(first: 100, after: $after) {
-         pageInfo { hasNextPage endCursor }
-         edges { node { name } }
-       }
-     }
-   }`,
-];
+const SUBGRAPH_KEY = import.meta.env.VITE_ENS_SUBGRAPH_KEY as string | undefined;
+const ENS_SUBGRAPH_ID = "5XqPmWe6gjyrJtFn9cLy237i4cWw2j9HcUJEXsP5qGtH";
 
-type NameNode = {
-	name?: string;
-	canonical?: { name?: string | { interpreted?: string } };
-};
-
-function readNodeName(node?: NameNode): string | null {
-	if (!node) return null;
-	if (typeof node.name === "string") return node.name;
-	const n = node.canonical?.name;
-	if (typeof n === "string") return n;
-	if (n && typeof n.interpreted === "string") return n.interpreted;
-	return null;
-}
-
-async function gql(query: string, address: string, after: string | null) {
-	const res = await fetch(ENSNODE_URL, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ query, variables: { address, after } }),
-	});
-	const json = await res.json();
-	if (json.errors?.length)
-		throw new Error(json.errors[0].message || "GraphQL error");
-	return json.data;
-}
+/** namehash("addr.reverse"). Reverse records are excluded in the query. */
+const ADDR_REVERSE_NODE =
+	"0x91d1777781884d03a6757a803996e38de2a42967fb37eeaca72729271025a9e2";
+const ZERO = "0x0000000000000000000000000000000000000000";
 
 /**
- * Names the indexer returns that this app cannot redirect, and so are noise in
+ * Mirrors the filter @ensdomains/ensjs sends for getNamesForAddress, minus its
+ * `resolvedAddress` clause: that matches names which merely point at you, which
+ * would fail the write simulation and read as noise in a picker that says "the
+ * names your wallet manages".
+ *
+ * Expired names and reverse records are excluded here rather than client-side,
+ * so they never cross the wire.
+ */
+const NAMES_QUERY = `query Names($addr: String!, $after: String!, $now: BigInt!) {
+  domains(
+    first: 1000
+    orderBy: id
+    orderDirection: asc
+    where: {
+      and: [
+        { id_gt: $after }
+        { or: [{ owner: $addr }, { registrant: $addr }, { wrappedOwner: $addr }] }
+        { parent_not: "${ADDR_REVERSE_NODE}" }
+        { or: [{ expiryDate_gt: $now }, { expiryDate: null }] }
+        { or: [
+            { owner_not: "${ZERO}" }
+            { resolver_not: null }
+            { and: [{ registrant_not: "${ZERO}" }, { registrant_not: null }] }
+        ] }
+      ]
+    }
+  ) { id name }
+}`;
+
+/**
+ * Names the index returns that this app cannot redirect, and so are noise in
  * the picker:
  *
- *  - Anything not ending in `.eth`. That is DNS names imported into the
- *    registry, which resolve through their own gateway rather than eth.limo, and
- *    it also covers the `*.addr.reverse` reverse records every address owning a
- *    primary name has.
+ *  - Anything not ending in `.eth`, which is DNS names imported into the
+ *    registry; they resolve through their own gateway rather than eth.limo.
  *  - `*.base.eth`. Basenames subnames are registered on Base, so their records
  *    do not live on the mainnet registry this app writes to. The exact name
  *    `base.eth` is a normal mainnet 2LD and is left in.
- *  - `[<labelhash>].eth`, the indexer saying it does not know the label behind a
+ *  - `[<labelhash>].eth`, the index saying it does not know the label behind a
  *    hash. `namehash` rejects those, so nothing can be done with them here.
  */
 function usable(name: string): boolean {
@@ -158,29 +155,42 @@ function usable(name: string): boolean {
 }
 
 export async function fetchOwnedNames(address: string): Promise<string[]> {
-	let lastErr: unknown = null;
-	for (const query of QUERIES) {
-		try {
-			const names: string[] = [];
-			let after: string | null = null;
-			for (let page = 0; page < 12; page++) {
-				const data = await gql(query, address.toLowerCase(), after);
-				const conn = data?.account?.domains;
-				if (!conn) break;
-				for (const edge of conn.edges ?? []) {
-					const n = readNodeName(edge?.node);
-					if (n && usable(n)) names.push(n);
-				}
-				if (!conn.pageInfo?.hasNextPage) break;
-				after = conn.pageInfo.endCursor ?? null;
-				if (!after) break;
-			}
-			return [...new Set(names)].sort((a, b) => a.localeCompare(b));
-		} catch (e) {
-			lastErr = e;
-		}
+	if (!SUBGRAPH_KEY) {
+		throw new Error(
+			"No ENS subgraph key is configured, so names cannot be listed.",
+		);
 	}
-	throw lastErr instanceof Error ? lastErr : new Error("indexer unreachable");
+
+	const url = `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${ENS_SUBGRAPH_ID}`;
+	const addr = address.toLowerCase();
+	const now = String(Math.floor(Date.now() / 1000));
+	const names: string[] = [];
+	/** Cursor on id rather than an offset, so paging cannot skip or repeat. */
+	let after = "";
+
+	for (let page = 0; page < 12; page++) {
+		const res = await fetch(url, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				query: NAMES_QUERY,
+				variables: { addr, after, now },
+			}),
+		});
+		if (!res.ok) throw new Error(`The ENS index returned ${res.status}.`);
+
+		const json = await res.json();
+		if (json.errors?.length)
+			throw new Error(json.errors[0].message || "ENS index error");
+
+		const rows: { id: string; name: string | null }[] = json.data?.domains ?? [];
+		for (const d of rows) if (d.name && usable(d.name)) names.push(d.name);
+
+		if (rows.length < 1000) break;
+		after = rows[rows.length - 1].id;
+	}
+
+	return [...new Set(names)].sort((a, b) => a.localeCompare(b));
 }
 
 /* ------------------------------------------------------------------ *
