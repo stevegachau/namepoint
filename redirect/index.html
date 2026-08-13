@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="robots" content="noindex">
+		<title>Redirecting…</title>
+		<style>
+			body{margin:0;min-height:100svh;display:grid;place-items:center;
+				font:400 15px/1.5 ui-sans-serif,system-ui,sans-serif;
+				color:#5b6472;background:#f7f9fb}
+			@media(prefers-color-scheme:dark){body{color:#8a94a6;background:#070d14}}
+			p{margin:0;padding:1.5rem;text-align:center}
+			a{color:inherit}
+		</style>
+	</head>
+	<body>
+		<p id="s">Resolving…</p>
+		<script>
+		(() => {
+			"use strict";
+
+			/* ---------- keccak-256 (Ethereum padding 0x01, not SHA-3's 0x06) ---------- */
+			const RC=[[1,0],[32898,0],[32906,2147483648],[2147516416,2147483648],[32907,0],[2147483649,0],
+				[2147516545,2147483648],[32777,2147483648],[138,0],[136,0],[2147516425,0],[2147483658,0],
+				[2147516555,0],[139,2147483648],[32905,2147483648],[32771,2147483648],[32770,2147483648],
+				[128,2147483648],[32778,0],[2147483658,2147483648],[2147516545,2147483648],[32896,2147483648],
+				[2147483649,0],[2147516424,2147483648]];
+			const ROT=[0,1,62,28,27,36,44,6,55,20,3,10,43,25,39,41,45,15,21,8,18,2,61,56,14];
+
+			function rotl(lo,hi,n){
+				if(n===0)return[lo,hi];
+				if(n<32)return[((lo<<n)|(hi>>>(32-n)))>>>0,((hi<<n)|(lo>>>(32-n)))>>>0];
+				n-=32;
+				if(n===0)return[hi,lo];
+				return[((hi<<n)|(lo>>>(32-n)))>>>0,((lo<<n)|(hi>>>(32-n)))>>>0];
+			}
+
+			function keccak(bytes){
+				const RATE=136,st=new Array(50).fill(0);
+				const pad=new Uint8Array(Math.ceil((bytes.length+1)/RATE)*RATE);
+				pad.set(bytes);pad[bytes.length]=1;pad[pad.length-1]|=128;
+				for(let off=0;off<pad.length;off+=RATE){
+					for(let i=0;i<RATE/8;i++){
+						const b=off+i*8;
+						st[i*2]^=(pad[b]|(pad[b+1]<<8)|(pad[b+2]<<16)|(pad[b+3]<<24))>>>0;
+						st[i*2+1]^=(pad[b+4]|(pad[b+5]<<8)|(pad[b+6]<<16)|(pad[b+7]<<24))>>>0;
+					}
+					for(let r=0;r<24;r++){
+						const C=new Array(10);
+						for(let x=0;x<5;x++){
+							C[x*2]=st[x*2]^st[(x+5)*2]^st[(x+10)*2]^st[(x+15)*2]^st[(x+20)*2];
+							C[x*2+1]=st[x*2+1]^st[(x+5)*2+1]^st[(x+10)*2+1]^st[(x+15)*2+1]^st[(x+20)*2+1];
+						}
+						for(let x=0;x<5;x++){
+							const R=rotl(C[((x+1)%5)*2],C[((x+1)%5)*2+1],1);
+							const dl=(C[((x+4)%5)*2]^R[0])>>>0,dh=(C[((x+4)%5)*2+1]^R[1])>>>0;
+							for(let y=0;y<25;y+=5){
+								st[(x+y)*2]=(st[(x+y)*2]^dl)>>>0;
+								st[(x+y)*2+1]=(st[(x+y)*2+1]^dh)>>>0;
+							}
+						}
+						const B=new Array(50).fill(0);
+						for(let i=0;i<25;i++){
+							const x=i%5,y=(i/5)|0,j=y+5*((2*x+3*y)%5);
+							const R=rotl(st[i*2],st[i*2+1],ROT[i]);
+							B[j*2]=R[0];B[j*2+1]=R[1];
+						}
+						for(let y=0;y<25;y+=5)for(let x=0;x<5;x++){
+							st[(y+x)*2]=(B[(y+x)*2]^((~B[(y+(x+1)%5)*2])&B[(y+(x+2)%5)*2]))>>>0;
+							st[(y+x)*2+1]=(B[(y+x)*2+1]^((~B[(y+(x+1)%5)*2+1])&B[(y+(x+2)%5)*2+1]))>>>0;
+						}
+						st[0]=(st[0]^RC[r][0])>>>0;st[1]=(st[1]^RC[r][1])>>>0;
+					}
+				}
+				const out=new Uint8Array(32);
+				for(let i=0;i<4;i++){
+					const lo=st[i*2],hi=st[i*2+1];
+					out[i*8]=lo&255;out[i*8+1]=(lo>>>8)&255;out[i*8+2]=(lo>>>16)&255;out[i*8+3]=(lo>>>24)&255;
+					out[i*8+4]=hi&255;out[i*8+5]=(hi>>>8)&255;out[i*8+6]=(hi>>>16)&255;out[i*8+7]=(hi>>>24)&255;
+				}
+				return out;
+			}
+
+			/* ---------- helpers ---------- */
+			const utf8=s=>new TextEncoder().encode(s);
+			const hex=b=>[...b].map(x=>x.toString(16).padStart(2,"0")).join("");
+			const pad32=h=>h.padStart(64,"0");
+			const padR=h=>h+"0".repeat((64-(h.length%64))%64);
+			const num=n=>pad32(n.toString(16));
+			const sel=sig=>hex(keccak(utf8(sig))).slice(0,8);
+
+			function namehash(name){
+				let node=new Uint8Array(32);
+				for(const label of name.split(".").reverse()){
+					const lh=keccak(utf8(label));
+					const cat=new Uint8Array(64);cat.set(node);cat.set(lh,32);
+					node=keccak(cat);
+				}
+				return hex(node);
+			}
+			const dnsEncode=n=>n.split(".").map(l=>{
+				const b=utf8(l);return b.length.toString(16).padStart(2,"0")+hex(b);
+			}).join("")+"00";
+
+			function decodeString(h){
+				h=h.replace(/^0x/,"");
+				const off=parseInt(h.slice(0,64),16)*2;
+				const len=parseInt(h.slice(off,off+64),16);
+				const body=h.slice(off+64,off+64+len*2);
+				return new TextDecoder().decode(Uint8Array.from(body.match(/../g)||[],b=>parseInt(b,16)));
+			}
+
+			/* ---------- the name being visited ---------- */
+			const host=location.hostname.toLowerCase();
+			const i=host.lastIndexOf(".eth");
+			const name=i===-1?(host.endsWith("eth")?host:""):host.slice(0,i+4);
+			const fail=m=>{document.getElementById("s").textContent=m;};
+			if(!name){fail("No ENS name in this address.");return;}
+
+			/* ---------- one call to the ENS Universal Resolver ---------- */
+			const UR="0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
+			const inner=sel("text(bytes32,string)")+pad32(namehash(name))+num(64)+num(3)+padR(hex(utf8("url")));
+			const d=dnsEncode(name);
+			const data="0x"+sel("resolve(bytes,bytes)")+num(64)
+				+num(64+32+Math.ceil(d.length/2/32)*32)
+				+num(d.length/2)+padR(d)+num(inner.length/2)+padR(inner);
+
+			/* Verified to serve eth_call without a key. Tatum is deliberately absent:
+			   it answers other methods but gates eth_call behind a paid plan. */
+			const RPCS=[
+				"https://ethereum-rpc.publicnode.com",
+				"https://eth.drpc.org",
+				"https://gateway.tenderly.co/public/mainnet",
+				"https://eth1.lava.build",
+				"https://public-eth.nownodes.io",
+				"https://mainnet.gateway.tenderly.co",
+				"https://rpc-eth.blockmachine.io",
+				"https://eth-mainnet.public.blastapi.io"
+			];
+
+			const ask=url=>fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+				body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:UR,data},"latest"]}),
+				signal:AbortSignal.timeout(6000)})
+				.then(r=>r.json())
+				.then(j=>{
+					if(j.error||!j.result||j.result==="0x")throw 0;
+					const h=j.result.slice(2);
+					const off=parseInt(h.slice(0,64),16)*2;
+					const len=parseInt(h.slice(off,off+64),16);
+					if(!len)throw 0;
+					const s=decodeString("0x"+h.slice(off+64,off+64+len*2));
+					if(!s)throw 0;
+					return s;
+				});
+
+			/* Every endpoint is asked at once and the first usable answer wins, so one
+			   slow or broken provider cannot hold up the redirect. */
+			Promise.any(RPCS.map(ask)).then(raw=>{
+				let u;
+				try{u=new URL(raw);}catch(_){return fail("The url record on "+name+" is not a valid address.");}
+				/* Only ever hand http(s) to the browser. The record can be set from any
+				   ENS manager, so javascript: and data: values must be refused here
+				   rather than trusted because our own app validates on write. */
+				if(u.protocol!=="http:"&&u.protocol!=="https:")
+					return fail("The url record on "+name+" is not an http address.");
+				location.replace(u.href);
+			}).catch(()=>fail("No url record set for "+name+" yet."));
+		})();
+		</script>
+	</body>
+</html>
