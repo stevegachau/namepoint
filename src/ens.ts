@@ -13,7 +13,7 @@ import {
 
 /** The redirect page, as an ENSIP-7 contenthash. */
 export const REDIRECT_CONTENTHASH =
-	"0xe30101701220b928405e3523dd7bcf77601d9a97ed72cb1b999b63fae1cfd47653482ee9c309";
+	"0xe3010170122086c5144fe51e4f19beb9b98388f0a0165fa6927e47c96d90968b861d99d45e49";
 
 export const MAINNET_HEX = "0x1";
 
