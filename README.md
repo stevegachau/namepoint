@@ -41,13 +41,30 @@ from the index.
 ## Run
 
 ```bash
+cp .env.example .env    # add a TheGraph key, see below
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # tsc --noEmit && vite build
-npm run preview    # serve the production build
+npm run dev             # http://localhost:5173
+npm run build           # tsc --noEmit && vite build
+npm run preview         # serve the production build
 ```
 
-React 18, Vite, TypeScript, Tailwind and ethers v6. No backend and no API keys.
+React 18, Vite, TypeScript, Tailwind and ethers v6. No backend.
+
+### The one key you need
+
+`VITE_ENS_SUBGRAPH_KEY` — a free key from
+[thegraph.com/studio](https://thegraph.com/studio). Listing the names a wallet
+owns needs an index, and the ENS subgraph has to be reached through TheGraph's
+decentralised gateway: the hosted service sends no `Access-Control-Allow-Origin`
+header, so a browser cannot call it at all.
+
+The key is a rate-limit identifier, not a secret. A browser app has nowhere to
+hide it, so it ships in the bundle either way; keeping it in the environment
+only stops it sitting in the repository where it would be scraped. Set usage
+limits for it in TheGraph Studio.
+
+Everything else — authorisation, every record read, the writes — goes to RPC and
+needs no key.
 
 ## Architecture
 
