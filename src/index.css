@@ -315,10 +315,15 @@
 }
 
 /*
- * The theme swap is a View Transition. The default cross-fade is suppressed so
- * the only thing animating is the clip-path wipe the toggle drives, and the new
+ * The theme swap is a View Transition. Every default animation is suppressed so
+ * the only thing running is the clip-path wipe the toggle drives, and the new
  * snapshot sits above the old one for the reveal to read against.
+ *
+ * `group` matters as much as old and new: the user agent animates it for 250ms
+ * by default, and when that ends it stops compositing the old snapshot. Against
+ * a 500ms wipe the page appears to swap halfway through and then snap.
  */
+::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root) {
 	animation: none;
