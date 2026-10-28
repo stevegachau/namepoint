@@ -7,7 +7,9 @@ import {
 	JsonRpcProvider,
 	Network,
 	ZeroAddress,
+	dnsEncode,
 	getAddress,
+	id,
 	namehash,
 } from "ethers";
 
@@ -32,18 +34,45 @@ const MAINNET_RPCS = [
 	"https://eth.drpc.org",
 ];
 const ENS_REGISTRY = "0x00000000000c2e074ec69a0dfb2997ba6c7d2e1e";
+/**
+ * The client-facing Universal Resolver proxy. Since ENSv2 went live on mainnet
+ * it is the one place that knows where any name's resolver is: a name
+ * registered or migrated under ENSv2 has no entry in the v1 registry at all.
+ * The redirect page already resolves through this same address.
+ */
+const UNIVERSAL_RESOLVER = "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe";
+/**
+ * ENSv2's read-only mirror of the v1 registry. The Universal Resolver answers
+ * with it for every name still living in v1, but it holds no records and takes
+ * no writes; the real resolver is still the one the v1 registry points at.
+ */
+const ENSV1_MIRROR_RESOLVER = "0x394d8eb4a4fdf599384deab25f31d111d755c398";
 const RESOLVIO = "https://api.resolvio.xyz/ens/v2/profile/";
 const RESOLVIO_REV = "https://api.resolvio.xyz/ens/v2/reverse/";
 
 const REGISTRY_ABI = ["function resolver(bytes32 node) view returns (address)"];
+const UNIVERSAL_RESOLVER_ABI = [
+	"function findResolver(bytes name) view returns (address resolver, bytes32 node, uint256 offset)",
+];
+/**
+ * Two resolver dialects are live. ENSv1 resolvers, and ENSv2's shared
+ * PublicResolverV2, key everything by node. ENSv2's per-name
+ * PermissionedResolver keys setters by DNS-encoded name and answers reads only
+ * through ENSIP-10 `resolve`; calling the node-keyed functions on it reverts.
+ */
 const RESOLVER_ABI = [
 	"function contenthash(bytes32 node) view returns (bytes)",
 	"function setContenthash(bytes32 node, bytes hash) external",
 	"function text(bytes32 node, string key) view returns (string)",
 	"function setText(bytes32 node, string key, string value) external",
-	// ENS's Multicallable, implemented by the Public Resolver. It re-enters the
-	// resolver per item preserving msg.sender, so authorisation still applies to
-	// each inner call and the destination plus the redirect fit in one signature.
+	"function setContenthash(bytes name, bytes hash) external",
+	"function setText(bytes name, string key, string value) external",
+	"function resolve(bytes name, bytes data) view returns (bytes)",
+	"function supportsInterface(bytes4 interfaceId) view returns (bool)",
+	// ENS's Multicallable, implemented by the Public Resolver and by ENSv2's
+	// resolvers alike. It re-enters the resolver per item preserving msg.sender,
+	// so authorisation still applies to each inner call and the destination plus
+	// the redirect fit in one signature.
 	"function multicall(bytes[] data) external returns (bytes[] results)",
 ];
 
@@ -51,6 +80,15 @@ const RESOLVER_ABI = [
 export const URL_KEY = "url";
 
 const resolverIface = new Interface(RESOLVER_ABI);
+
+/**
+ * ERC-165 ids of ENSv2's name-keyed ITextSetter and IContenthashSetter. Each
+ * interface has one function, so its id is that function's selector.
+ */
+const NAME_KEYED_SETTERS = [
+	id("setText(bytes,string,string)").slice(0, 10),
+	id("setContenthash(bytes,bytes)").slice(0, 10),
+];
 
 /**
  * Canonicalise an address. Lowercasing first is the whole point: getAddress()
@@ -80,60 +118,60 @@ const read = new FallbackProvider(
 	{ quorum: 1 },
 );
 const registry = new Contract(norm(ENS_REGISTRY), REGISTRY_ABI, read);
+const universalResolver = new Contract(
+	norm(UNIVERSAL_RESOLVER),
+	UNIVERSAL_RESOLVER_ABI,
+	read,
+);
 
 export const shortAddr = (a?: string | null) =>
 	a ? `${a.slice(0, 6)}\u2026${a.slice(-4)}` : "";
 
 /* ------------------------------------------------------------------ *
- * Name discovery — the ENS subgraph
+ * Name discovery — Bigname
  *
- * Reached through TheGraph's decentralised gateway rather than the hosted
- * service, because the hosted service sends no Access-Control-Allow-Origin and
- * so cannot be called from a browser at all.
- *
- * The gateway key is a rate-limit identifier rather than a secret: a browser
- * app has nowhere to hide it, so it necessarily ships in the bundle. It is read
- * from the environment only to keep it out of the repository, where it would be
- * trivially scraped. Set limits for it in TheGraph Studio.
+ * ENS's own REST index (github.com/ensdomains/bigname). It covers both ENSv1
+ * and ENSv2 names, needs no key and sends `Access-Control-Allow-Origin: *`, so
+ * the browser calls it directly. The ENS subgraph it replaces indexes v1 only.
  * ------------------------------------------------------------------ */
 
-const SUBGRAPH_KEY = import.meta.env.VITE_ENS_SUBGRAPH_KEY as string | undefined;
-const ENS_SUBGRAPH_ID = "5XqPmWe6gjyrJtFn9cLy237i4cWw2j9HcUJEXsP5qGtH";
+const BIGNAME = "https://api.bigname.sh/v1";
 
-/** namehash("addr.reverse"). Reverse records are excluded in the query. */
-const ADDR_REVERSE_NODE =
-	"0x91d1777781884d03a6757a803996e38de2a42967fb37eeaca72729271025a9e2";
-const ZERO = "0x0000000000000000000000000000000000000000";
+/** Bigname's page-size ceiling. */
+const PAGE_SIZE = 200;
+
+type BignameName = {
+	name: string;
+	expires_at: string | null;
+	grace_ends_at: string | null;
+};
 
 /**
- * Mirrors the filter @ensdomains/ensjs sends for getNamesForAddress, minus its
- * `resolvedAddress` clause: that matches names which merely point at you, which
- * would fail the write simulation and read as noise in a picker that says "the
- * names your wallet manages".
- *
- * Expired names and reverse records are excluded here rather than client-side,
- * so they never cross the wire.
+ * `owner` is the token holder (registrant, or wrapped owner) and `manager` is
+ * the effective controller, which together match the owner / registrant /
+ * wrappedOwner filter the subgraph query used. `role_holder` is left out: an
+ * ENSv2 registry role is not a resolver write grant, so those rows would only
+ * fail the write simulation and read as noise in a picker that says "the names
+ * your wallet manages".
  */
-const NAMES_QUERY = `query Names($addr: String!, $after: String!, $now: BigInt!) {
-  domains(
-    first: 1000
-    orderBy: id
-    orderDirection: asc
-    where: {
-      and: [
-        { id_gt: $after }
-        { or: [{ owner: $addr }, { registrant: $addr }, { wrappedOwner: $addr }] }
-        { parent_not: "${ADDR_REVERSE_NODE}" }
-        { or: [{ expiryDate_gt: $now }, { expiryDate: null }] }
-        { or: [
-            { owner_not: "${ZERO}" }
-            { resolver_not: null }
-            { and: [{ registrant_not: "${ZERO}" }, { registrant_not: null }] }
-        ] }
-      ]
-    }
-  ) { id name }
-}`;
+function namesUrl(address: string, cursor: string | null): string {
+	const q = new URLSearchParams({
+		namespace: "ens",
+		relation: "owner,manager",
+		page_size: String(PAGE_SIZE),
+	});
+	if (cursor) q.set("cursor", cursor);
+	return `${BIGNAME}/addresses/${address}/names?${q}`;
+}
+
+/**
+ * Still live, grace period included: a name in grace can be renewed and its
+ * records still resolve, so it belongs in the picker as it did before.
+ */
+function live(row: BignameName, now: number): boolean {
+	const end = row.grace_ends_at ?? row.expires_at;
+	return end === null || Number(end) > now;
+}
 
 /**
  * Names the index returns that this app cannot redirect, and so are noise in
@@ -155,39 +193,26 @@ function usable(name: string): boolean {
 }
 
 export async function fetchOwnedNames(address: string): Promise<string[]> {
-	if (!SUBGRAPH_KEY) {
-		throw new Error(
-			"No ENS subgraph key is configured, so names cannot be listed.",
-		);
-	}
-
-	const url = `https://gateway.thegraph.com/api/${SUBGRAPH_KEY}/subgraphs/id/${ENS_SUBGRAPH_ID}`;
 	const addr = address.toLowerCase();
-	const now = String(Math.floor(Date.now() / 1000));
+	const now = Math.floor(Date.now() / 1000);
 	const names: string[] = [];
-	/** Cursor on id rather than an offset, so paging cannot skip or repeat. */
-	let after = "";
+	/** Bigname's opaque cursor, so paging cannot skip or repeat. */
+	let cursor: string | null = null;
 
-	for (let page = 0; page < 12; page++) {
-		const res = await fetch(url, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({
-				query: NAMES_QUERY,
-				variables: { addr, after, now },
-			}),
-		});
+	for (let page = 0; page < 60; page++) {
+		const res: Response = await fetch(namesUrl(addr, cursor));
 		if (!res.ok) throw new Error(`The ENS index returned ${res.status}.`);
 
-		const json = await res.json();
-		if (json.errors?.length)
-			throw new Error(json.errors[0].message || "ENS index error");
+		const json: {
+			data?: BignameName[];
+			page?: { has_more?: boolean; next_cursor?: string | null };
+		} = await res.json();
+		const rows = json.data ?? [];
+		for (const d of rows)
+			if (d.name && live(d, now) && usable(d.name)) names.push(d.name);
 
-		const rows: { id: string; name: string | null }[] = json.data?.domains ?? [];
-		for (const d of rows) if (d.name && usable(d.name)) names.push(d.name);
-
-		if (rows.length < 1000) break;
-		after = rows[rows.length - 1].id;
+		cursor = json.page?.has_more ? (json.page.next_cursor ?? null) : null;
+		if (!cursor) break;
 	}
 
 	return [...new Set(names)].sort((a, b) => a.localeCompare(b));
@@ -200,7 +225,11 @@ export async function fetchOwnedNames(address: string): Promise<string[]> {
 export type NameStatus = {
 	name: string;
 	node: string;
+	/** The DNS-encoded name, which ENSv2 resolvers key their records by. */
+	dnsName: string;
 	resolver: string | null;
+	/** ENSv2 PermissionedResolver: setters take the DNS-encoded name, not the node. */
+	nameKeyed: boolean;
 	hasResolver: boolean;
 	current: string | null;
 	url: string | null;
@@ -218,6 +247,73 @@ function errText(e: unknown): string {
 	return x?.shortMessage || x?.reason || x?.message || String(e);
 }
 
+/**
+ * The resolver that holds this exact name's records, or null.
+ *
+ * The Universal Resolver walks ENSv2 first and falls back to v1, so it is
+ * right for both. Two of its answers need translating:
+ *
+ *  - The ENSv1 mirror means the name still lives in v1, and its records sit on
+ *    the resolver the v1 registry points at.
+ *  - A non-zero offset means the resolver was found on an ancestor (ENSIP-10
+ *    wildcard). The name has none of its own, which is how the v1 registry
+ *    read used to report it, and writing to the parent's resolver for it is not
+ *    something this app should attempt.
+ */
+async function findResolver(node: string, dnsName: string): Promise<string | null> {
+	const [found, , offset] = await universalResolver.findResolver(dnsName);
+	if (norm(found) === norm(ENSV1_MIRROR_RESOLVER)) {
+		const r: string = await registry.resolver(node);
+		return r === ZeroAddress ? null : r;
+	}
+	if (found === ZeroAddress || offset !== 0n) return null;
+	return found;
+}
+
+async function isNameKeyed(rc: Contract): Promise<boolean> {
+	try {
+		for (const iid of NAME_KEYED_SETTERS)
+			if (!(await rc.supportsInterface(iid))) return false;
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+/** Calldata for one record write, in whichever dialect the resolver speaks. */
+function encodeSetText(s: NameStatus, key: string, value: string): string {
+	return resolverIface.encodeFunctionData(
+		s.nameKeyed
+			? "setText(bytes,string,string)"
+			: "setText(bytes32,string,string)",
+		[s.nameKeyed ? s.dnsName : s.node, key, value],
+	);
+}
+
+function encodeSetContenthash(s: NameStatus, hash: string): string {
+	return resolverIface.encodeFunctionData(
+		s.nameKeyed ? "setContenthash(bytes,bytes)" : "setContenthash(bytes32,bytes)",
+		[s.nameKeyed ? s.dnsName : s.node, hash],
+	);
+}
+
+/**
+ * A view call, read straight off a node-keyed resolver or through ENSIP-10
+ * `resolve` on a name-keyed one, which ignores the node inside the calldata.
+ */
+async function readRecord(
+	rc: Contract,
+	s: NameStatus,
+	fn: "contenthash" | "text",
+	args: unknown[],
+): Promise<string> {
+	const sig = fn === "text" ? "text(bytes32,string)" : "contenthash(bytes32)";
+	if (!s.nameKeyed) return rc.getFunction(sig)(...args);
+	const data = resolverIface.encodeFunctionData(sig, args);
+	const out: string = await rc.resolve(s.dnsName, data);
+	return resolverIface.decodeFunctionResult(sig, out)[0];
+}
+
 export async function inspectName(
 	name: string,
 	account: string,
@@ -226,8 +322,10 @@ export async function inspectName(
 	// hand back such names, and the raw ethers error is unreadable, so it is
 	// translated here rather than surfaced.
 	let node: string;
+	let dnsName: string;
 	try {
 		node = namehash(name);
+		dnsName = dnsEncode(name, 255);
 	} catch {
 		throw new Error(
 			`${name} is not a normalised ENS name, so its records cannot be addressed.`,
@@ -237,7 +335,9 @@ export async function inspectName(
 	const s: NameStatus = {
 		name,
 		node,
+		dnsName,
 		resolver: null,
+		nameKeyed: false,
 		hasResolver: false,
 		current: null,
 		url: null,
@@ -250,16 +350,17 @@ export async function inspectName(
 	};
 
 	try {
-		s.resolver = await registry.resolver(node);
+		s.resolver = await findResolver(node, dnsName);
 	} catch (e) {
-		throw new Error(`Reading the registry for ${name} failed: ${errText(e)}`);
+		throw new Error(`Finding the resolver for ${name} failed: ${errText(e)}`);
 	}
-	s.hasResolver = !!s.resolver && s.resolver !== ZeroAddress;
+	s.hasResolver = !!s.resolver;
 
 	if (s.hasResolver) {
 		const rc = new Contract(norm(s.resolver as string), RESOLVER_ABI, read);
+		s.nameKeyed = await isNameKeyed(rc);
 		try {
-			s.current = await rc.contenthash(node);
+			s.current = await readRecord(rc, s, "contenthash", [node]);
 		} catch {
 			/* resolver may not implement contenthash */
 		}
@@ -267,16 +368,19 @@ export async function inspectName(
 		// API below. The app now writes this record, so guessing it is empty when
 		// a third-party service is merely unreachable would overwrite a live value.
 		try {
-			s.url = (await rc.text(node, URL_KEY)) || null;
+			s.url = (await readRecord(rc, s, "text", [node, URL_KEY])) || null;
 		} catch {
 			/* resolver may not implement text */
 		}
 		// Simulating the write from the connected address is the only check that
-		// covers registrant, manager, wrapped owner, operator and per-resolver
-		// delegate schemes without guessing which one this resolver implements.
+		// covers registrant, manager, wrapped owner, operator, per-resolver
+		// delegate and ENSv2 role schemes without guessing which one this resolver
+		// implements.
 		try {
-			await rc.setContenthash.staticCall(node, REDIRECT_CONTENTHASH, {
+			await read.call({
+				to: norm(s.resolver as string),
 				from: norm(account),
+				data: encodeSetContenthash(s, REDIRECT_CONTENTHASH),
 			});
 			s.canWrite = true;
 		} catch (e) {
@@ -289,15 +393,8 @@ export async function inspectName(
 			try {
 				await rc.multicall.staticCall(
 					[
-						resolverIface.encodeFunctionData("setText", [
-							node,
-							URL_KEY,
-							s.url ?? "https://example.com",
-						]),
-						resolverIface.encodeFunctionData("setContenthash", [
-							node,
-							REDIRECT_CONTENTHASH,
-						]),
+						encodeSetText(s, URL_KEY, s.url ?? "https://example.com"),
+						encodeSetContenthash(s, REDIRECT_CONTENTHASH),
 					],
 					{ from: norm(account) },
 				);
@@ -417,11 +514,7 @@ export function planTransactions(
 	if (intent.url !== null) {
 		calls.push({
 			label: "set the destination",
-			data: resolverIface.encodeFunctionData("setText", [
-				status.node,
-				URL_KEY,
-				intent.url,
-			]),
+			data: encodeSetText(status, URL_KEY, intent.url),
 		});
 	}
 	if (intent.contenthash !== null) {
@@ -430,10 +523,7 @@ export function planTransactions(
 				intent.contenthash === "0x"
 					? "switch the redirect off"
 					: "switch the redirect on",
-			data: resolverIface.encodeFunctionData("setContenthash", [
-				status.node,
-				intent.contenthash,
-			]),
+			data: encodeSetContenthash(status, intent.contenthash),
 		});
 	}
 

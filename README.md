@@ -8,7 +8,8 @@ editing one record, with no further transaction.
 
 ## How it works
 
-Activating writes two records on the resolver already set on your name:
+Activating writes two records on the resolver already set on your name. ENSv1
+and ENSv2 names both work:
 
 - **`contenthash`** resolves to a small redirect page pinned on IPFS.
 - **`url`** holds your destination. The redirect page reads it on every request.
@@ -33,15 +34,16 @@ Only `.eth` names on Ethereum mainnet can be redirected, so the picker leaves ou
 - `*.base.eth` subnames, which are registered on Base rather than on mainnet.
 - Names the public ENS index cannot resolve a label for, shown as
   `[<labelhash>].eth`.
+- Expired names past their grace period.
 
-The index can also lag a recent registration or transfer. Whether you are
-authorised to change a name is checked onchain when you select it, not taken
-from the index.
+Names come from [Bigname](https://github.com/ensdomains/bigname), ENS's public
+index, which covers both ENSv1 and ENSv2. The index can lag a recent
+registration or transfer. Whether you are authorised to change a name is
+checked onchain when you select it, not taken from the index.
 
 ## Run
 
 ```bash
-cp .env.example .env    # add a TheGraph key, see below
 npm install
 npm run dev             # http://localhost:5173
 npm run build           # tsc --noEmit && vite build
@@ -50,21 +52,9 @@ npm run preview         # serve the production build
 
 React 18, Vite, TypeScript, Tailwind and ethers v6. No backend.
 
-### The one key you need
-
-`VITE_ENS_SUBGRAPH_KEY` — a free key from
-[thegraph.com/studio](https://thegraph.com/studio). Listing the names a wallet
-owns needs an index, and the ENS subgraph has to be reached through TheGraph's
-decentralised gateway: the hosted service sends no `Access-Control-Allow-Origin`
-header, so a browser cannot call it at all.
-
-The key is a rate-limit identifier, not a secret. A browser app has nowhere to
-hide it, so it ships in the bundle either way; keeping it in the environment
-only stops it sitting in the repository where it would be scraped. Set usage
-limits for it in TheGraph Studio.
-
-Everything else — authorisation, every record read, the writes — goes to RPC and
-needs no key.
+No keys or environment variables. Name listing calls Bigname's public API
+(`api.bigname.sh`), which needs no key and allows browser origins; everything
+else — authorisation, every record read, the writes — goes to RPC.
 
 ## Architecture
 
@@ -72,7 +62,7 @@ needs no key.
 src/
   App.tsx          page composition, wallet state, provider listeners
   NameSheet.tsx    connect / select / confirm dialog
-  ens.ts           registry and resolver reads, write planning, submission
+  ens.ts           name listing, resolver reads, write planning, submission
   wallet.ts        EIP-6963 discovery, WalletConnect behind a dynamic import
   index.css        design tokens
   components/      landing page and shared UI
@@ -80,6 +70,16 @@ src/
 
 Notes for anyone working on `ens.ts`:
 
+- **The resolver is found through the Universal Resolver**
+  (`0xeEeE…EeEe`), not the v1 registry, because a name registered or migrated
+  under ENSv2 has no v1 registry entry. When it answers with ENSv2's v1 mirror
+  resolver, the name still lives in v1 and the v1 registry's resolver is used.
+- **Two resolver dialects.** ENSv1 resolvers and ENSv2's PublicResolverV2 key
+  records by node. ENSv2's per-name PermissionedResolver keys setters by
+  DNS-encoded name and serves reads only through ENSIP-10 `resolve`. The
+  dialect is chosen by ERC-165 (`setText(bytes,string,string)` and
+  `setContenthash(bytes,bytes)`), and both the simulation and the real writes
+  use it.
 - **Authorisation is simulated, not inferred.** `setContenthash` is run through
   `staticCall` from the connected address before a name is offered. This covers
   registrant, manager, wrapped owner, operator and per-resolver delegate schemes
@@ -89,7 +89,7 @@ Notes for anyone working on `ens.ts`:
   authorised rather than only that the entry point exists. Resolvers without
   `multicall` fall back to one transaction per record, and the UI states the
   count before the first prompt.
-- **The destination is read onchain** via `text(node, "url")`. The profile API is
+- **The destination is read onchain** via the `url` text record. The profile API is
   only a fallback, so an unreachable third-party service is never mistaken for an
   empty record.
 - **Only `http` and `https` destinations are accepted.** The `url` record is read
